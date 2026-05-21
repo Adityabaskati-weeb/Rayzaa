@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rayzaa.dev/schemas/case-decision.schema.json",
+  "title": "Case Decision",
+  "type": "object",
+  "required": [
+    "case_id",
+    "transaction_id",
+    "fraud_score",
+    "ring_risk_score",
+    "drift_score",
+    "final_risk_score",
+    "decision"
+  ],
+  "properties": {
+    "case_id": { "type": "string" },
+    "transaction_id": { "type": "string" },
+    "fraud_score": { "type": "number", "minimum": 0, "maximum": 100 },
+    "ring_risk_score": { "type": "number", "minimum": 0, "maximum": 100 },
+    "drift_score": { "type": "number", "minimum": 0, "maximum": 100 },
+    "voice_confidence": { "type": "number", "minimum": 0, "maximum": 100 },
+    "device_trust_score": { "type": "number", "minimum": 0, "maximum": 100 },
+    "final_risk_score": { "type": "number", "minimum": 0, "maximum": 100 },
+    "decision": {
+      "type": "string",
+      "enum": ["approve", "review", "block", "escalate_aml", "reclassify_account"]
+    },
+    "top_reasons": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "analyst_summary": { "type": "string" }
+  },
+  "additionalProperties": true
+}
