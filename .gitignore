@@ -1,0 +1,33 @@
+# Node
+node_modules/
+.next/
+out/
+dist/
+coverage/
+
+# Python
+__pycache__/
+.pytest_cache/
+.venv/
+venv/
+*.pyc
+
+# Data
+*.parquet
+*.feather
+*.sqlite
+*.db
+*.pkl
+*.joblib
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
