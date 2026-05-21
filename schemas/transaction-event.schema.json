@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rayzaa.dev/schemas/transaction-event.schema.json",
+  "title": "Transaction Event",
+  "type": "object",
+  "required": [
+    "transaction_id",
+    "timestamp",
+    "user_id",
+    "amount",
+    "currency",
+    "channel",
+    "merchant_id",
+    "device_id",
+    "city",
+    "country"
+  ],
+  "properties": {
+    "transaction_id": { "type": "string" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "user_id": { "type": "string" },
+    "amount": { "type": "number", "minimum": 0 },
+    "currency": { "type": "string" },
+    "channel": { "type": "string", "enum": ["upi", "card", "bank_transfer"] },
+    "merchant_id": { "type": "string" },
+    "merchant_type": { "type": "string" },
+    "device_id": { "type": "string" },
+    "device_os": { "type": "string" },
+    "ip_address": { "type": "string" },
+    "city": { "type": "string" },
+    "country": { "type": "string" },
+    "latitude": { "type": "number" },
+    "longitude": { "type": "number" },
+    "velocity_1h": { "type": "number", "minimum": 0 },
+    "velocity_24h": { "type": "number", "minimum": 0 },
+    "account_age_days": { "type": "number", "minimum": 0 },
+    "is_dormant_recently": { "type": "boolean" },
+    "kyc_updated_recently": { "type": "boolean" },
+    "shared_device_count": { "type": "number", "minimum": 0 }
+  },
+  "additionalProperties": true
+}
