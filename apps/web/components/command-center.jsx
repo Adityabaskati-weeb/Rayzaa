@@ -30,6 +30,8 @@ const TrustGraph = dynamic(() => import("./trust-graph"), {
 const { apiBase: API_BASE, wsUrl: WS_URL, backendConfigured } = getRuntimeConfig();
 const EMPTY_GRAPH = { nodes: [], edges: [] };
 const EVIDENCE_GROUP_KEYS = ["modelEvidence", "graphEvidence", "driftEvidence", "policyEvidence"];
+const LOCAL_HOSTS = new Set(["127.0.0.1", "localhost"]);
+const POLL_INTERVAL_MS = 10000;
 
 function isBaselineCase(caseRecord) {
   return Boolean(caseRecord?.isBaselineSeed || String(caseRecord?.lastTransactionId || "").startsWith("seed_"));
@@ -67,6 +69,26 @@ function replayModeLabel(replayContext) {
   return "Live context";
 }
 
+function shouldUseHostedPolling() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+  return !LOCAL_HOSTS.has(window.location.hostname);
+}
+
+function connectionLabel(connection) {
+  if (connection === "live") {
+    return "Live stream";
+  }
+  if (connection === "synced") {
+    return "Synced";
+  }
+  if (connection === "degraded") {
+    return "Attention";
+  }
+  return "Connecting";
+}
+
 export default function CommandCenter() {
   const [state, setState] = useState(null);
   const [activeTab, setActiveTab] = useState("evidence");
@@ -81,12 +103,17 @@ export default function CommandCenter() {
   const keepAliveRef = useRef(null);
   const reconnectRef = useRef(null);
   const narrativeRecoveryRef = useRef("");
+  const pollingOnlyRef = useRef(false);
 
-  async function loadState() {
+  async function loadState(options = {}) {
+    const { preserveLiveConnection = false } = options;
     const response = await fetch(`${API_BASE}/api/state`, { cache: "no-store" });
     const payload = await response.json();
     setState(payload);
     setPolicyDraft(payload.policy || DEFAULT_POLICY);
+    if (!preserveLiveConnection) {
+      setConnection((current) => (current === "live" ? current : "synced"));
+    }
   }
 
   async function loadCase(caseId, options = {}) {
@@ -121,7 +148,27 @@ export default function CommandCenter() {
       setConnection("degraded");
       return;
     }
-    loadState().catch(() => {});
+    pollingOnlyRef.current = shouldUseHostedPolling();
+    loadState({ preserveLiveConnection: false }).catch(() => {
+      setConnection("degraded");
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!backendConfigured) {
+      return undefined;
+    }
+
+    pollingOnlyRef.current = shouldUseHostedPolling();
+    const poller = window.setInterval(() => {
+      loadState({ preserveLiveConnection: true }).catch(() => {
+        if (pollingOnlyRef.current) {
+          setConnection("degraded");
+        }
+      });
+    }, POLL_INTERVAL_MS);
+
+    return () => window.clearInterval(poller);
   }, []);
 
   useEffect(() => {
@@ -156,6 +203,10 @@ export default function CommandCenter() {
   useEffect(() => {
     if (!backendConfigured) {
       setConnection("degraded");
+      return undefined;
+    }
+    if (shouldUseHostedPolling()) {
+      setConnection("synced");
       return undefined;
     }
     let closed = false;
@@ -307,7 +358,9 @@ export default function CommandCenter() {
   const trustState = replayOverlayActive ? activeReplayStep?.trustState || focusCase?.trustState || "Healthy" : focusCase?.trustState || "Healthy";
   const trustLabel = replayOverlayActive
     ? activeReplayStep?.label || "Replay chronology"
-    : `${focusCase?.source === "live" ? "Live intake" : "Replay case"} | ${focusCase?.caseId || "case"}`;
+    : focusCase
+      ? `${focusCase.source === "live" ? "Live intake" : "Replay case"} | ${focusCase.caseId || "case"}`
+      : "Live relationship topology";
   const queue = state?.queue || [];
   const operations = state?.operations || {};
   const demoFlow = operations.demoFlow || {};
@@ -586,7 +639,7 @@ export default function CommandCenter() {
             </div>
             <div className={`status-chip ${connection}`}>
               <span className="status-dot" />
-              {connection}
+              {connectionLabel(connection)}
             </div>
           </div>
           <div className="rayzaa-status-copy">

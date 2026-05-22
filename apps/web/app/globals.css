@@ -234,6 +234,10 @@ button {
   color: var(--mint);
 }
 
+.status-chip.synced {
+  color: var(--mint);
+}
+
 .status-chip.reconnecting,
 .status-chip.connecting {
   color: var(--amber);
@@ -1669,6 +1673,12 @@ button {
   gap: 14px;
 }
 
+.rayzaa-shell-actions {
+  display: grid;
+  min-width: 320px;
+  justify-items: end;
+}
+
 .portal-actions {
   align-items: flex-end;
 }
@@ -1723,7 +1733,7 @@ button {
 
 .rayzaa-shell-header {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 380px);
   gap: 24px;
 }
 
@@ -1744,12 +1754,14 @@ button {
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  flex-wrap: wrap;
   gap: 12px;
 }
 
 .rayzaa-status-copy {
   display: grid;
   gap: 6px;
+  min-width: 0;
   justify-items: end;
   text-align: right;
 }
@@ -1757,8 +1769,14 @@ button {
 .rayzaa-status-copy strong {
   font-family: var(--font-mono);
   font-size: 12px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.rayzaa-status-copy span {
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .payeasy-hero,
@@ -1782,6 +1800,7 @@ button {
 .rayzaa-ops-card,
 .rayzaa-queue-metric,
 .rayzaa-case-stat {
+  display: grid;
   gap: 8px;
   padding: 16px 18px;
 }
@@ -1994,6 +2013,19 @@ button {
   background: #fcfaf6;
 }
 
+.rayzaa-queue-metric strong,
+.rayzaa-ops-card strong,
+.rayzaa-case-stat strong,
+.graph-metric-card strong,
+.case-metadata-cell strong,
+.case-metric-card strong,
+.replay-status-card strong,
+.queue-meta-cell strong {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.18;
+}
+
 .rayzaa-queue-metric span,
 .rayzaa-case-stat span,
 .rayzaa-ops-card span {
@@ -2034,6 +2066,11 @@ button {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   font-family: var(--font-mono);
+}
+
+.rayzaa-case-meta span {
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .rayzaa-case-summary-copy,

@@ -8,6 +8,8 @@ import LivePaymentPanel from "./command-center/live-payment-panel";
 import TrustStatePill from "./command-center/trust-state-pill";
 
 const { apiBase: API_BASE, wsUrl: WS_URL, backendConfigured } = getRuntimeConfig();
+const LOCAL_HOSTS = new Set(["127.0.0.1", "localhost"]);
+const POLL_INTERVAL_MS = 10000;
 
 function liveSignalLabel(item) {
   if (!item) {
@@ -20,16 +22,41 @@ function isBaselineCase(item) {
   return Boolean(item?.isBaselineSeed || String(item?.lastTransactionId || "").startsWith("seed_"));
 }
 
+function shouldUseHostedPolling() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+  return !LOCAL_HOSTS.has(window.location.hostname);
+}
+
+function connectionLabel(connection) {
+  if (connection === "live") {
+    return "Live stream";
+  }
+  if (connection === "synced") {
+    return "Synced";
+  }
+  if (connection === "degraded") {
+    return "Attention";
+  }
+  return "Connecting";
+}
+
 export default function PayEasyDashboard() {
   const [state, setState] = useState(null);
   const [connection, setConnection] = useState("connecting");
   const keepAliveRef = useRef(null);
   const reconnectRef = useRef(null);
+  const pollingOnlyRef = useRef(false);
 
-  async function loadState() {
+  async function loadState(options = {}) {
+    const { preserveLiveConnection = false } = options;
     const response = await fetch(`${API_BASE}/api/state`, { cache: "no-store" });
     const payload = await response.json();
     setState(payload);
+    if (!preserveLiveConnection) {
+      setConnection((current) => (current === "live" ? current : "synced"));
+    }
   }
 
   useEffect(() => {
@@ -37,12 +64,36 @@ export default function PayEasyDashboard() {
       setConnection("degraded");
       return;
     }
-    loadState().catch(() => {});
+    pollingOnlyRef.current = shouldUseHostedPolling();
+    loadState({ preserveLiveConnection: false }).catch(() => {
+      setConnection("degraded");
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!backendConfigured) {
+      return undefined;
+    }
+
+    pollingOnlyRef.current = shouldUseHostedPolling();
+    const poller = window.setInterval(() => {
+      loadState({ preserveLiveConnection: true }).catch(() => {
+        if (pollingOnlyRef.current) {
+          setConnection("degraded");
+        }
+      });
+    }, POLL_INTERVAL_MS);
+
+    return () => window.clearInterval(poller);
   }, []);
 
   useEffect(() => {
     if (!backendConfigured) {
       setConnection("degraded");
+      return undefined;
+    }
+    if (shouldUseHostedPolling()) {
+      setConnection("synced");
       return undefined;
     }
     let closed = false;
@@ -148,7 +199,7 @@ export default function PayEasyDashboard() {
         <div className="portal-actions">
           <div className={`status-chip ${connection}`}>
             <span className="status-dot" />
-            {connection}
+            {connectionLabel(connection)}
           </div>
           <nav className="dashboard-switch">
             <Link href="/" className="switch-link active">
