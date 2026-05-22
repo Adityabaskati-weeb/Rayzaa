@@ -38,6 +38,8 @@ At boot the service:
 3. seeds the approved `benchmark_v3` artifact bundle into runtime storage
 4. starts `uvicorn` on the Render-provided port
 
+If the service was created manually without a mounted disk, startup falls back to `/tmp/rayzaa` so the backend can still boot and serve the demo. That fallback is ephemeral, but it is sufficient for the current hosted frontend + backend validation flow.
+
 ## Health Check
 
 Use:
