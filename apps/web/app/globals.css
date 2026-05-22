@@ -1645,6 +1645,8 @@ button {
 .portal-shell {
   gap: 32px;
   max-width: 1380px;
+  padding-top: var(--shell-header-offset, 280px);
+  position: relative;
 }
 
 .panel {
@@ -1653,15 +1655,23 @@ button {
 
 .portal-header,
 .rayzaa-shell-header {
-  position: sticky;
-  top: 12px;
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  width: min(calc(100% - 48px), 1380px);
+  transform: translateX(-50%);
   z-index: 20;
-  align-self: start;
   align-items: center;
   padding: 20px 24px;
   border: 1px solid var(--line);
   background: #ffffff;
   box-shadow: 0 12px 28px rgba(26, 26, 26, 0.08);
+}
+
+.app-shell-body,
+.portal-body {
+  display: grid;
+  gap: 24px;
 }
 
 .portal-brand h1,
@@ -2315,7 +2325,8 @@ button {
 
   .portal-header,
   .rayzaa-shell-header {
-    top: 8px;
+    top: 16px;
+    width: min(calc(100% - 32px), 1380px);
   }
 
   .rayzaa-shell-header,
@@ -2371,6 +2382,11 @@ button {
   .rayzaa-shell-header {
     flex-direction: column;
     gap: 16px;
+  }
+
+  .app-shell,
+  .portal-shell {
+    padding-top: var(--shell-header-offset, 360px);
   }
 
   .portal-actions,

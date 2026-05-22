@@ -90,6 +90,8 @@ function connectionLabel(connection) {
 }
 
 export default function CommandCenter() {
+  const shellRef = useRef(null);
+  const headerRef = useRef(null);
   const [state, setState] = useState(null);
   const [activeTab, setActiveTab] = useState("evidence");
   const [selectedCase, setSelectedCase] = useState(null);
@@ -153,6 +155,22 @@ export default function CommandCenter() {
       setConnection("degraded");
     });
   }, []);
+
+  useEffect(() => {
+    if (!shellRef.current || !headerRef.current) {
+      return undefined;
+    }
+
+    const updateHeaderOffset = () => {
+      const height = headerRef.current?.offsetHeight || 0;
+      shellRef.current?.style.setProperty("--shell-header-offset", `${height + 32}px`);
+    };
+
+    updateHeaderOffset();
+    window.addEventListener("resize", updateHeaderOffset);
+
+    return () => window.removeEventListener("resize", updateHeaderOffset);
+  }, [connection, statusHeadline, statusTitle, replayModeDisplay]);
 
   useEffect(() => {
     if (!backendConfigured) {
@@ -590,7 +608,7 @@ export default function CommandCenter() {
   }
 
   return (
-    <main className="app-shell">
+    <main ref={shellRef} className="app-shell">
       {!backendConfigured && (
         <section className="panel">
           <div className="panel-header">
@@ -604,7 +622,7 @@ export default function CommandCenter() {
           </p>
         </section>
       )}
-      <header className="panel rayzaa-shell-header">
+      <header ref={headerRef} className="panel rayzaa-shell-header">
         <div className="rayzaa-shell-brand">
           <div>
             <p className="eyebrow">Rayzaa</p>
@@ -652,8 +670,9 @@ export default function CommandCenter() {
         </div>
       </header>
 
-      <section className="rayzaa-command-layout">
-        <aside className="rayzaa-column rayzaa-column-left">
+      <div className="app-shell-body">
+        <section className="rayzaa-command-layout">
+          <aside className="rayzaa-column rayzaa-column-left">
           <SignalRailPanel signalRail={state?.signalRail || []} onSelectCase={selectCaseFromSignal} />
           <section className="panel rayzaa-queue-surface">
             <div className="panel-header">
@@ -678,9 +697,9 @@ export default function CommandCenter() {
             </div>
             <QueuePanel queue={queue} onSelectCase={loadCase} selectedCaseId={selectedCase?.caseId || ""} />
           </section>
-        </aside>
+          </aside>
 
-        <section className="rayzaa-column rayzaa-column-center">
+          <section className="rayzaa-column rayzaa-column-center">
           <section className="panel rayzaa-case-summary">
             <div className="rayzaa-case-summary-head">
               <div>
@@ -746,9 +765,9 @@ export default function CommandCenter() {
             onPolicyChange={handlePolicyChange}
             onSavePolicy={savePolicy}
           />
-        </section>
+          </section>
 
-        <aside className="rayzaa-column rayzaa-column-right">
+          <aside className="rayzaa-column rayzaa-column-right">
           <TrustGraph elements={[...(graph.nodes || []), ...(graph.edges || [])]} trustState={trustState} replayLabel={trustLabel} />
 
           <ReplayPanel
@@ -801,8 +820,9 @@ export default function CommandCenter() {
               </div>
             </div>
           </section>
-        </aside>
-      </section>
+          </aside>
+        </section>
+      </div>
     </main>
   );
 }

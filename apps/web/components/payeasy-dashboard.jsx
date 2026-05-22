@@ -43,6 +43,8 @@ function connectionLabel(connection) {
 }
 
 export default function PayEasyDashboard() {
+  const shellRef = useRef(null);
+  const headerRef = useRef(null);
   const [state, setState] = useState(null);
   const [connection, setConnection] = useState("connecting");
   const keepAliveRef = useRef(null);
@@ -69,6 +71,22 @@ export default function PayEasyDashboard() {
       setConnection("degraded");
     });
   }, []);
+
+  useEffect(() => {
+    if (!shellRef.current || !headerRef.current) {
+      return undefined;
+    }
+
+    const updateHeaderOffset = () => {
+      const height = headerRef.current?.offsetHeight || 0;
+      shellRef.current?.style.setProperty("--shell-header-offset", `${height + 32}px`);
+    };
+
+    updateHeaderOffset();
+    window.addEventListener("resize", updateHeaderOffset);
+
+    return () => window.removeEventListener("resize", updateHeaderOffset);
+  }, [connection]);
 
   useEffect(() => {
     if (!backendConfigured) {
@@ -174,7 +192,7 @@ export default function PayEasyDashboard() {
   }
 
   return (
-    <main className="portal-shell">
+    <main ref={shellRef} className="portal-shell">
       {!backendConfigured && (
         <section className="panel">
           <div className="panel-header">
@@ -188,7 +206,7 @@ export default function PayEasyDashboard() {
           </p>
         </section>
       )}
-      <header className="portal-header panel">
+      <header ref={headerRef} className="portal-header panel">
         <div className="portal-brand">
           <p className="eyebrow">PayEasy</p>
           <h1>Live Checkout Surface</h1>
@@ -212,140 +230,142 @@ export default function PayEasyDashboard() {
         </div>
       </header>
 
-      <section className="panel payeasy-hero">
-        <div className="payeasy-hero-copy">
-          <p className="eyebrow">Customer Dashboard</p>
-          <h2>Accept a real Razorpay test payment, then hand the case to Rayzaa.</h2>
-          <p>
-            Baseline traffic stays visible for context, but only a true live payment unlocks Trust Replay and the analyst investigation workflow.
-          </p>
-        </div>
-        <div className="payeasy-kpi-grid">
-          <div className="payeasy-kpi-card">
-            <span>Baseline context</span>
-            <strong>{baselineSignals.length}</strong>
-            <p>{baselineSignals.length ? "Seeded signals are ready." : "Awaiting seed context."}</p>
+      <div className="portal-body">
+        <section className="panel payeasy-hero">
+          <div className="payeasy-hero-copy">
+            <p className="eyebrow">Customer Dashboard</p>
+            <h2>Accept a real Razorpay test payment, then hand the case to Rayzaa.</h2>
+            <p>
+              Baseline traffic stays visible for context, but only a true live payment unlocks Trust Replay and the analyst investigation workflow.
+            </p>
           </div>
-          <div className="payeasy-kpi-card">
-            <span>Live payment proof</span>
-            <strong>{latestLiveSignal ? latestLiveSignal.transactionId : "Pending"}</strong>
-            <p>{latestLiveSignal ? "Webhook reached Rayzaa." : "No live checkout has cleared yet."}</p>
-          </div>
-          <div className="payeasy-kpi-card">
-            <span>Trust handoff</span>
-            <strong>{trustShiftCase?.trustState || "Healthy"}</strong>
-            <p>{trustShiftCase ? `${compactNumber(trustShiftCase.fusedScore || 0)} fused into Rayzaa.` : "Awaiting operational handoff."}</p>
-          </div>
-          <div className="payeasy-kpi-card">
-            <span>Replay unlock</span>
-            <strong>{demoFlow.livePaymentSeen ? "Ready" : "Locked"}</strong>
-            <p>{demoFlow.livePaymentSeen ? "Analyst replay is now available." : "Seed baseline first, then complete one live payment."}</p>
-          </div>
-        </div>
-      </section>
-
-      <section className="payeasy-main-grid">
-        <LivePaymentPanel
-          apiBase={API_BASE}
-          operations={operations}
-          latestLiveSignal={latestLiveSignal}
-          onOpenCase={openRayzaaCase}
-        />
-
-        <aside className="panel payeasy-activity-panel">
-          <div className="panel-header">
-            <div>
-              <p className="eyebrow">Checkout Activity</p>
-              <h2>Customer-side proof trail</h2>
+          <div className="payeasy-kpi-grid">
+            <div className="payeasy-kpi-card">
+              <span>Baseline context</span>
+              <strong>{baselineSignals.length}</strong>
+              <p>{baselineSignals.length ? "Seeded signals are ready." : "Awaiting seed context."}</p>
             </div>
-            <Link href="/rayzaa" className="ghost-button portal-link-button">
-              Open analyst view
-            </Link>
+            <div className="payeasy-kpi-card">
+              <span>Live payment proof</span>
+              <strong>{latestLiveSignal ? latestLiveSignal.transactionId : "Pending"}</strong>
+              <p>{latestLiveSignal ? "Webhook reached Rayzaa." : "No live checkout has cleared yet."}</p>
+            </div>
+            <div className="payeasy-kpi-card">
+              <span>Trust handoff</span>
+              <strong>{trustShiftCase?.trustState || "Healthy"}</strong>
+              <p>{trustShiftCase ? `${compactNumber(trustShiftCase.fusedScore || 0)} fused into Rayzaa.` : "Awaiting operational handoff."}</p>
+            </div>
+            <div className="payeasy-kpi-card">
+              <span>Replay unlock</span>
+              <strong>{demoFlow.livePaymentSeen ? "Ready" : "Locked"}</strong>
+              <p>{demoFlow.livePaymentSeen ? "Analyst replay is now available." : "Seed baseline first, then complete one live payment."}</p>
+            </div>
           </div>
-          <div className="payeasy-activity-list">
-            {paymentActivity.map((item) => (
-              <button
-                key={item.transactionId}
-                type="button"
-                className="payeasy-activity-card"
-                onClick={() => openRayzaaCase(item.caseId)}
-              >
-                <div className="payeasy-activity-head">
-                  <span className="timeline-tag">{liveSignalLabel(item)}</span>
-                  <time dateTime={item.timestamp || ""}>{formatTimestamp(item.timestamp)}</time>
-                </div>
-                <div className="payeasy-activity-identity">
-                  <strong>{item.accountId}</strong>
-                  <strong>{currency(item.amount)}</strong>
-                </div>
-                <p>{item.scenarioNote || "Payment entered the shared operational rail."}</p>
-                <div className="payeasy-activity-foot">
-                  <span>{item.transactionId}</span>
-                  <TrustStatePill value={item.trustState} />
-                </div>
-              </button>
-            ))}
-            {!paymentActivity.length && (
-              <div className="empty-state">
-                <p>No checkout activity yet.</p>
-                <span>Seed baseline context or complete one Razorpay test payment to populate the customer activity rail.</span>
+        </section>
+
+        <section className="payeasy-main-grid">
+          <LivePaymentPanel
+            apiBase={API_BASE}
+            operations={operations}
+            latestLiveSignal={latestLiveSignal}
+            onOpenCase={openRayzaaCase}
+          />
+
+          <aside className="panel payeasy-activity-panel">
+            <div className="panel-header">
+              <div>
+                <p className="eyebrow">Checkout Activity</p>
+                <h2>Customer-side proof trail</h2>
               </div>
-            )}
-          </div>
-        </aside>
-      </section>
+              <Link href="/rayzaa" className="ghost-button portal-link-button">
+                Open analyst view
+              </Link>
+            </div>
+            <div className="payeasy-activity-list">
+              {paymentActivity.map((item) => (
+                <button
+                  key={item.transactionId}
+                  type="button"
+                  className="payeasy-activity-card"
+                  onClick={() => openRayzaaCase(item.caseId)}
+                >
+                  <div className="payeasy-activity-head">
+                    <span className="timeline-tag">{liveSignalLabel(item)}</span>
+                    <time dateTime={item.timestamp || ""}>{formatTimestamp(item.timestamp)}</time>
+                  </div>
+                  <div className="payeasy-activity-identity">
+                    <strong>{item.accountId}</strong>
+                    <strong>{currency(item.amount)}</strong>
+                  </div>
+                  <p>{item.scenarioNote || "Payment entered the shared operational rail."}</p>
+                  <div className="payeasy-activity-foot">
+                    <span>{item.transactionId}</span>
+                    <TrustStatePill value={item.trustState} />
+                  </div>
+                </button>
+              ))}
+              {!paymentActivity.length && (
+                <div className="empty-state">
+                  <p>No checkout activity yet.</p>
+                  <span>Seed baseline context or complete one Razorpay test payment to populate the customer activity rail.</span>
+                </div>
+              )}
+            </div>
+          </aside>
+        </section>
 
-      <section className="panel payeasy-handoff-panel">
-        <div className="payeasy-handoff-header">
-          <div>
-            <p className="eyebrow">Operational Handoff</p>
-            <h2>Rayzaa receives the checkout, scores trust, and exposes the investigation path.</h2>
+        <section className="panel payeasy-handoff-panel">
+          <div className="payeasy-handoff-header">
+            <div>
+              <p className="eyebrow">Operational Handoff</p>
+              <h2>Rayzaa receives the checkout, scores trust, and exposes the investigation path.</h2>
+            </div>
+            <div className="payeasy-handoff-actions">
+              <Link href="/rayzaa" className="ghost-button portal-link-button">
+                Open Rayzaa command center
+              </Link>
+              {trustShiftCase?.caseId && (
+                <button type="button" className="action-button review" onClick={() => openRayzaaCase(trustShiftCase.caseId)}>
+                  Open latest live case
+                </button>
+              )}
+            </div>
           </div>
-          <div className="payeasy-handoff-actions">
-            <Link href="/rayzaa" className="ghost-button portal-link-button">
-              Open Rayzaa command center
-            </Link>
-            {trustShiftCase?.caseId && (
-              <button type="button" className="action-button review" onClick={() => openRayzaaCase(trustShiftCase.caseId)}>
-                Open latest live case
-              </button>
-            )}
-          </div>
-        </div>
 
-        <div className="payeasy-handoff-grid">
-          <div className="payeasy-handoff-card">
-            <span>Latest trust outcome</span>
-            <strong>{trustShiftCase?.trustState || "Healthy"}</strong>
-            <p>
-              {trustShiftCase
-                ? `${trustShiftCase.caseId || trustShiftCase.accountId} | ${compactNumber(trustShiftCase.fusedScore || 0)} fused`
-                : "Awaiting live trust evaluation from Rayzaa."}
-            </p>
+          <div className="payeasy-handoff-grid">
+            <div className="payeasy-handoff-card">
+              <span>Latest trust outcome</span>
+              <strong>{trustShiftCase?.trustState || "Healthy"}</strong>
+              <p>
+                {trustShiftCase
+                  ? `${trustShiftCase.caseId || trustShiftCase.accountId} | ${compactNumber(trustShiftCase.fusedScore || 0)} fused`
+                  : "Awaiting live trust evaluation from Rayzaa."}
+              </p>
+            </div>
+            <div className="payeasy-handoff-card">
+              <span>Queue impact</span>
+              <strong>{queue.length ? `${queue.length} active` : "Queue clear"}</strong>
+              <p>{queue.length ? "Live payment has entered analyst triage." : "No queue pressure from the current checkout session."}</p>
+            </div>
+            <div className="payeasy-handoff-card">
+              <span>Telegram status</span>
+              <strong>{latestAlert?.status || "Pending"}</strong>
+              <p>{latestAlert ? latestAlert.message : "Alerting remains threshold-driven and may stay quiet for low-pressure checkouts."}</p>
+            </div>
+            <div className="payeasy-handoff-card">
+              <span>Integration posture</span>
+              <strong>{integrationStatus.razorpay?.configured ? "Ready" : "Config missing"}</strong>
+              <p>
+                {integrationStatus.razorpay?.configured
+                  ? integrationStatus.razorpay?.testMode
+                    ? "Razorpay Test Mode is active."
+                    : "Live Razorpay credentials are present."
+                  : "Add Razorpay credentials before using the customer checkout on stage."}
+              </p>
+            </div>
           </div>
-          <div className="payeasy-handoff-card">
-            <span>Queue impact</span>
-            <strong>{queue.length ? `${queue.length} active` : "Queue clear"}</strong>
-            <p>{queue.length ? "Live payment has entered analyst triage." : "No queue pressure from the current checkout session."}</p>
-          </div>
-          <div className="payeasy-handoff-card">
-            <span>Telegram status</span>
-            <strong>{latestAlert?.status || "Pending"}</strong>
-            <p>{latestAlert ? latestAlert.message : "Alerting remains threshold-driven and may stay quiet for low-pressure checkouts."}</p>
-          </div>
-          <div className="payeasy-handoff-card">
-            <span>Integration posture</span>
-            <strong>{integrationStatus.razorpay?.configured ? "Ready" : "Config missing"}</strong>
-            <p>
-              {integrationStatus.razorpay?.configured
-                ? integrationStatus.razorpay?.testMode
-                  ? "Razorpay Test Mode is active."
-                  : "Live Razorpay credentials are present."
-                : "Add Razorpay credentials before using the customer checkout on stage."}
-            </p>
-          </div>
-        </div>
-      </section>
+        </section>
+      </div>
     </main>
   );
 }
