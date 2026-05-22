@@ -604,84 +604,58 @@ export default function CommandCenter() {
           </p>
         </section>
       )}
-      <header className="panel rayzaa-shell-header">
-        <div className="rayzaa-shell-brand">
-          <div>
-            <p className="eyebrow">Rayzaa</p>
-            <h1>Trust Operations Command</h1>
-          </div>
-          <p className="rayzaa-shell-copy">
-            Analyst-facing trust investigation surface for live intake, queue triage, typed evidence, and replay chronology.
-          </p>
-        </div>
-        <div className="rayzaa-shell-actions">
-          <nav className="dashboard-switch">
-            <Link href="/payeasy" className="switch-link">
-              PayEasy
-            </Link>
-            <Link href="/rayzaa" className="switch-link active">
-              Rayzaa command
-            </Link>
-          </nav>
-          <div className="rayzaa-header-controls">
-            <div className="mode-switch" aria-label="Analyst context mode">
-              <button type="button" className={liveViewActive ? "active" : ""} onClick={activateLiveView}>
-                Live
-              </button>
-              <button
-                type="button"
-                className={replayViewActive ? "active" : ""}
-                onClick={activateReplayView}
-                disabled={!replayAvailableForNarrative}
-              >
-                Replay
-              </button>
+      <div className="rayzaa-fixed-stack">
+        <header className="panel rayzaa-shell-header">
+          <div className="rayzaa-shell-brand">
+            <div>
+              <p className="eyebrow">Rayzaa</p>
+              <h1>Trust Operations Command</h1>
             </div>
-            <div className={`status-chip ${connection}`}>
-              <span className="status-dot" />
-              {connectionLabel(connection)}
+            <p className="rayzaa-shell-copy">
+              Analyst-facing trust investigation surface for live intake, queue triage, typed evidence, and replay chronology.
+            </p>
+          </div>
+          <div className="rayzaa-shell-actions">
+            <nav className="dashboard-switch">
+              <Link href="/payeasy" className="switch-link">
+                PayEasy
+              </Link>
+              <Link href="/rayzaa" className="switch-link active">
+                Rayzaa command
+              </Link>
+            </nav>
+            <div className="rayzaa-header-controls">
+              <div className="mode-switch" aria-label="Analyst context mode">
+                <button type="button" className={liveViewActive ? "active" : ""} onClick={activateLiveView}>
+                  Live
+                </button>
+                <button
+                  type="button"
+                  className={replayViewActive ? "active" : ""}
+                  onClick={activateReplayView}
+                  disabled={!replayAvailableForNarrative}
+                >
+                  Replay
+                </button>
+              </div>
+              <div className={`status-chip ${connection}`}>
+                <span className="status-dot" />
+                {connectionLabel(connection)}
+              </div>
+            </div>
+            <div className="rayzaa-status-copy">
+              <strong>{statusHeadline}</strong>
+              <span>
+                {statusTitle}{" "}
+                {state?.system?.status === "running" && state?.system?.totalSteps ? `| ${state.system.activeStep}/${state.system.totalSteps}` : ""}
+              </span>
             </div>
           </div>
-          <div className="rayzaa-status-copy">
-            <strong>{statusHeadline}</strong>
-            <span>
-              {statusTitle}{" "}
-              {state?.system?.status === "running" && state?.system?.totalSteps ? `| ${state.system.activeStep}/${state.system.totalSteps}` : ""}
-            </span>
-          </div>
-        </div>
-      </header>
+        </header>
 
-      <div className="app-shell-body">
-        <section className="rayzaa-command-layout">
-          <aside className="rayzaa-column rayzaa-column-left">
+        <section className="rayzaa-top-grid">
           <SignalRailPanel signalRail={state?.signalRail || []} onSelectCase={selectCaseFromSignal} />
-          <section className="panel rayzaa-queue-surface">
-            <div className="panel-header">
-              <div>
-                <p className="eyebrow">Queue Posture</p>
-                <h2>Review and escalation queue</h2>
-              </div>
-            </div>
-            <div className="rayzaa-queue-metrics">
-              <div className="rayzaa-queue-metric">
-                <span>Review required</span>
-                <strong>{queueCounts.review}</strong>
-              </div>
-              <div className="rayzaa-queue-metric">
-                <span>Escalated</span>
-                <strong>{queueCounts.escalated}</strong>
-              </div>
-              <div className="rayzaa-queue-metric">
-                <span>Live trigger</span>
-                <strong>{latestLiveSignal?.transactionId || "Pending"}</strong>
-              </div>
-            </div>
-            <QueuePanel queue={queue} onSelectCase={loadCase} selectedCaseId={selectedCase?.caseId || ""} />
-          </section>
-          </aside>
 
-          <section className="rayzaa-column rayzaa-column-center">
           <section className="panel rayzaa-case-summary">
             <div className="rayzaa-case-summary-head">
               <div>
@@ -731,6 +705,35 @@ export default function CommandCenter() {
             </div>
           </section>
 
+          <TrustGraph elements={[...(graph.nodes || []), ...(graph.edges || [])]} trustState={trustState} replayLabel={trustLabel} />
+        </section>
+      </div>
+
+      <div className="app-shell-body">
+        <section className="rayzaa-bottom-grid">
+          <section className="panel rayzaa-queue-surface">
+            <div className="panel-header">
+              <div>
+                <p className="eyebrow">Queue Posture</p>
+                <h2>Review and escalation queue</h2>
+              </div>
+            </div>
+            <div className="rayzaa-queue-metrics">
+              <div className="rayzaa-queue-metric">
+                <span>Review required</span>
+                <strong>{queueCounts.review}</strong>
+              </div>
+              <div className="rayzaa-queue-metric">
+                <span>Escalated</span>
+                <strong>{queueCounts.escalated}</strong>
+              </div>
+              <div className="rayzaa-queue-metric">
+                <span>Live trigger</span>
+                <strong>{latestLiveSignal?.transactionId || "Pending"}</strong>
+              </div>
+            </div>
+            <QueuePanel queue={queue} onSelectCase={loadCase} selectedCaseId={selectedCase?.caseId || ""} />
+          </section>
           <EvidenceLensPanel
             activeTab={activeTab}
             onTabChange={setActiveTab}
@@ -747,11 +750,8 @@ export default function CommandCenter() {
             onPolicyChange={handlePolicyChange}
             onSavePolicy={savePolicy}
           />
-          </section>
 
-          <aside className="rayzaa-column rayzaa-column-right">
-          <TrustGraph elements={[...(graph.nodes || []), ...(graph.edges || [])]} trustState={trustState} replayLabel={trustLabel} />
-
+          <aside className="rayzaa-bottom-right">
           <ReplayPanel
             scenarios={scenarios}
             currentScenarioId={state?.system?.scenarioId}

@@ -1645,30 +1645,43 @@ button {
 .portal-shell {
   gap: 32px;
   max-width: 1380px;
-  padding-top: var(--shell-header-offset, 280px);
+  padding-top: var(--shell-fixed-offset, 0);
   position: relative;
 }
 
 .portal-shell {
-  --shell-header-offset: 232px;
+  --shell-fixed-offset: 470px;
 }
 
 .app-shell {
-  --shell-header-offset: 276px;
+  --shell-fixed-offset: 760px;
 }
 
 .panel {
   overflow: hidden;
 }
 
-.portal-header,
-.rayzaa-shell-header {
+.portal-fixed-stack,
+.rayzaa-fixed-stack {
   position: fixed;
-  top: 0;
+  top: 24px;
   left: 50%;
-  width: min(calc(100% - 32px), 1380px);
+  width: min(calc(100% - 48px), 1380px);
   transform: translateX(-50%);
   z-index: 20;
+  display: grid;
+  gap: 20px;
+  align-items: start;
+}
+
+.portal-header,
+.rayzaa-shell-header {
+  position: relative;
+  top: auto;
+  left: auto;
+  width: auto;
+  transform: none;
+  z-index: auto;
   align-items: center;
   padding: 20px 24px;
   border: 1px solid var(--line);
@@ -1809,6 +1822,10 @@ button {
 .payeasy-hero {
   grid-template-columns: 1fr;
   gap: 20px;
+}
+
+.portal-fixed-stack .payeasy-hero {
+  box-shadow: 0 12px 28px rgba(26, 26, 26, 0.08);
 }
 
 .payeasy-kpi-grid {
@@ -1967,17 +1984,39 @@ button {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.rayzaa-command-layout {
+.rayzaa-top-grid,
+.rayzaa-bottom-grid {
   display: grid;
   grid-template-columns: minmax(270px, 0.92fr) minmax(0, 1.48fr) minmax(310px, 0.98fr);
   gap: 20px;
   align-items: start;
 }
 
-.rayzaa-column {
+.rayzaa-top-grid > *,
+.rayzaa-bottom-grid > *,
+.rayzaa-bottom-right {
   display: grid;
   gap: 20px;
   min-width: 0;
+}
+
+.rayzaa-top-grid {
+  align-items: stretch;
+}
+
+.rayzaa-top-grid .signal-panel,
+.rayzaa-top-grid .rayzaa-case-summary,
+.rayzaa-top-grid .graph-shell {
+  height: 100%;
+  box-shadow: 0 12px 28px rgba(26, 26, 26, 0.08);
+}
+
+.rayzaa-top-grid .rayzaa-case-summary {
+  overflow: auto;
+}
+
+.rayzaa-top-grid .graph-canvas {
+  min-height: 190px;
 }
 
 .signal-panel,
@@ -2321,7 +2360,8 @@ button {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .rayzaa-command-layout {
+  .rayzaa-top-grid,
+  .rayzaa-bottom-grid {
     grid-template-columns: minmax(250px, 0.9fr) minmax(0, 1.4fr) minmax(290px, 0.95fr);
   }
 }
@@ -2331,13 +2371,21 @@ button {
     padding: 16px;
   }
 
-  .portal-header,
-  .rayzaa-shell-header {
-    width: min(calc(100% - 24px), 1380px);
+  .portal-fixed-stack,
+  .rayzaa-fixed-stack {
+    position: static;
+    width: auto;
+    transform: none;
+  }
+
+  .app-shell,
+  .portal-shell {
+    padding-top: 0;
   }
 
   .rayzaa-shell-header,
-  .rayzaa-command-layout {
+  .rayzaa-top-grid,
+  .rayzaa-bottom-grid {
     grid-template-columns: 1fr;
   }
 
@@ -2360,6 +2408,10 @@ button {
   .evidence-panel,
   .center-panel {
     min-height: auto;
+  }
+
+  .rayzaa-top-grid .graph-canvas {
+    min-height: 300px;
   }
 
   .portal-header,
@@ -2389,19 +2441,6 @@ button {
   .rayzaa-shell-header {
     flex-direction: column;
     gap: 16px;
-  }
-
-  .app-shell,
-  .portal-shell {
-    padding-top: var(--shell-header-offset, 360px);
-  }
-
-  .portal-shell {
-    --shell-header-offset: 288px;
-  }
-
-  .app-shell {
-    --shell-header-offset: 340px;
   }
 
   .portal-actions,
