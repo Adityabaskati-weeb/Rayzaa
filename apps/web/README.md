@@ -1,39 +1,39 @@
-# Web App
+# Rayzaa Web
 
-This package should host the analyst-facing fraud operations console.
+This package now contains the current Rayzaa frontend implementation.
 
-## Responsibilities
+## Product Split
 
-- live transaction stream UI
-- fraud graph visualization
-- investigation queue
-- explanation drawer
-- geographic risk view
-- threshold and analyst feedback controls
+- `/` and `/payeasy`: customer-facing PayEasy checkout dashboard
+- `/rayzaa`: analyst-facing Rayzaa trust operations command center
 
-## Design Direction
+## Current Frontend Surfaces
 
-Avoid generic admin dashboard styling.
+- Signal Rail
+- Evidence Lens
+- Trust Replay
+- Trust Memory Graph
+- Queue Panel
+- Case Timeline
+- PayEasy live payment proof
 
-Target a modern fintech SOC feel:
+## Runtime Requirements
 
-- deep neutral background
-- sharp signal colors for risk states
-- animated graph transitions
-- clear event hierarchy
-- dense but readable operator layout
+Local development can fall back to:
 
-## Suggested Views
+- `http://127.0.0.1:8000`
+- `ws://127.0.0.1:8000/ws/live`
 
-- `/`: main command center
-- `/cases/[id]`: investigation detail
-- `/drift`: account drift queue
-- `/replay`: scripted demo mode
+Hosted deployments must set:
 
-## Suggested Tech
+- `NEXT_PUBLIC_API_BASE`
+- `NEXT_PUBLIC_WS_URL`
 
-- Next.js
-- Tailwind CSS
-- Framer Motion
-- Cytoscape.js
-- Recharts or Visx only where needed
+See:
+
+- `apps/web/.env.example`
+- `docs/vercel-frontend.md`
+
+## Deployment Intent
+
+This package is designed to deploy independently as a Next.js frontend, with the backend hosted separately for API and WebSocket traffic.
