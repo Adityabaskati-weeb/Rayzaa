@@ -11,7 +11,7 @@
   --amber: #c88912;
   --orange: #d97706;
   --red: #c8102e;
-  --shadow: 0 4px 20px rgba(26, 26, 26, 0.05);
+  --shadow: none;
   --state-healthy: #107c10;
   --state-watch: #c88912;
   --state-fractured: #d97706;
@@ -1636,13 +1636,625 @@ button {
   border-left: 3px solid var(--state-escalated);
 }
 
-@media (max-width: 1440px) {
-  .payeasy-hero,
-  .handoff-brief-grid,
-  .payeasy-main-grid {
-    grid-template-columns: 1fr;
-  }
+/* v0-aligned dashboard composition */
+.app-shell,
+.portal-shell {
+  gap: 32px;
+  max-width: 1380px;
+}
 
+.panel {
+  overflow: hidden;
+}
+
+.portal-header,
+.rayzaa-shell-header {
+  position: sticky;
+  top: 24px;
+  z-index: 20;
+  align-items: center;
+  padding: 20px 24px;
+  border: 1px solid var(--line);
+  background: #ffffff;
+}
+
+.portal-brand h1,
+.rayzaa-shell-brand h1 {
+  font-size: clamp(2rem, 3vw, 2.8rem);
+  line-height: 1;
+}
+
+.portal-actions,
+.rayzaa-shell-actions {
+  gap: 14px;
+}
+
+.portal-actions {
+  align-items: flex-end;
+}
+
+.dashboard-switch {
+  gap: 24px;
+}
+
+.switch-link {
+  padding-bottom: 10px;
+  font-size: 12px;
+}
+
+.ghost-button,
+.action-button,
+.payment-launch-button,
+.save-policy,
+.mode-switch button {
+  min-height: 42px;
+}
+
+.mode-switch {
+  display: inline-grid;
+  grid-template-columns: repeat(2, minmax(74px, 1fr));
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  background: #ffffff;
+}
+
+.mode-switch button {
+  padding: 0 14px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: background 180ms ease, color 180ms ease;
+}
+
+.mode-switch button.active {
+  background: var(--text);
+  color: #ffffff;
+}
+
+.mode-switch button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.rayzaa-shell-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 24px;
+}
+
+.rayzaa-shell-brand {
+  display: grid;
+  gap: 10px;
+}
+
+.rayzaa-shell-copy,
+.rayzaa-status-copy span {
+  margin: 0;
+  max-width: 720px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.rayzaa-header-controls {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.rayzaa-status-copy {
+  display: grid;
+  gap: 6px;
+  justify-items: end;
+  text-align: right;
+}
+
+.rayzaa-status-copy strong {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.payeasy-hero,
+.payeasy-handoff-panel,
+.live-payment-panel,
+.rayzaa-case-summary {
+  padding: 28px 32px;
+}
+
+.payeasy-hero {
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+.payeasy-kpi-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.payeasy-kpi-card,
+.payeasy-handoff-card,
+.rayzaa-ops-card,
+.rayzaa-queue-metric,
+.rayzaa-case-stat {
+  gap: 8px;
+  padding: 16px 18px;
+}
+
+.payeasy-kpi-card strong,
+.payeasy-handoff-card strong,
+.rayzaa-ops-card strong {
+  font-size: 18px;
+}
+
+.payeasy-main-grid {
+  grid-template-columns: 1fr;
+}
+
+.payment-proof-header {
+  align-items: flex-start;
+}
+
+.payment-proof-header h2 {
+  font-size: 2rem;
+  line-height: 1.05;
+}
+
+.payment-proof-copy {
+  max-width: 760px;
+  line-height: 1.55;
+}
+
+.payment-proof-sequence {
+  gap: 18px;
+  align-items: start;
+}
+
+.payment-sequence-step {
+  position: relative;
+  justify-items: center;
+  gap: 10px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  text-align: center;
+}
+
+.payment-sequence-step:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 17px;
+  left: calc(50% + 22px);
+  width: calc(100% - 12px);
+  height: 1px;
+  background: var(--line);
+}
+
+.payment-sequence-index {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--muted);
+}
+
+.payment-sequence-step strong {
+  font-size: 12px;
+  font-family: var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.payment-sequence-step.payment-complete .payment-sequence-index {
+  border-color: var(--text);
+  background: var(--text);
+  color: #ffffff;
+}
+
+.payment-sequence-step.payment-active .payment-sequence-index,
+.payment-sequence-step.payment-ready .payment-sequence-index {
+  border-color: var(--state-watch);
+  color: var(--state-watch);
+}
+
+.payment-sequence-step.payment-risk .payment-sequence-index {
+  border-color: var(--state-escalated);
+  color: var(--state-escalated);
+}
+
+.payment-proof-grid {
+  grid-template-columns: minmax(0, 1.15fr) minmax(310px, 0.85fr);
+  gap: 20px;
+}
+
+.payment-form {
+  gap: 20px;
+  padding: 22px;
+}
+
+.payment-field input,
+.payment-field select {
+  min-height: 46px;
+}
+
+.payment-proof-sidebar {
+  gap: 14px;
+}
+
+.payment-proof-card {
+  gap: 12px;
+  padding: 18px;
+}
+
+.payment-proof-card .ghost-button {
+  width: fit-content;
+}
+
+.payeasy-activity-panel {
+  min-height: 0;
+}
+
+.payeasy-activity-list {
+  gap: 12px;
+  padding: 24px;
+}
+
+.payeasy-activity-card {
+  gap: 12px;
+  padding: 18px;
+}
+
+.payeasy-activity-card p,
+.payeasy-handoff-card p {
+  line-height: 1.5;
+}
+
+.payeasy-handoff-panel {
+  gap: 20px;
+}
+
+.payeasy-handoff-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.rayzaa-command-layout {
+  display: grid;
+  grid-template-columns: minmax(270px, 0.92fr) minmax(0, 1.48fr) minmax(310px, 0.98fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.rayzaa-column {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+}
+
+.signal-panel,
+.evidence-panel,
+.rayzaa-queue-surface,
+.rayzaa-ops-surface,
+.replay-panel,
+.graph-shell {
+  background: #ffffff;
+}
+
+.panel-header,
+.replay-header {
+  padding: 18px 20px 16px;
+  background: #ffffff;
+}
+
+.signal-list,
+.queue-list {
+  gap: 8px;
+  padding: 16px;
+}
+
+.signal-card,
+.queue-card {
+  gap: 10px;
+  padding: 14px 16px;
+  background: #ffffff;
+}
+
+.signal-card p,
+.queue-card p {
+  line-height: 1.45;
+}
+
+.signal-note,
+.queue-summary {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.rayzaa-queue-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  padding: 16px 16px 0;
+}
+
+.rayzaa-queue-metric {
+  border: 1px solid var(--line);
+  background: #fcfaf6;
+}
+
+.rayzaa-queue-metric span,
+.rayzaa-case-stat span,
+.rayzaa-ops-card span {
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-family: var(--font-mono);
+}
+
+.rayzaa-case-summary {
+  display: grid;
+  gap: 18px;
+}
+
+.rayzaa-case-summary-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.rayzaa-case-summary-head h2 {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: clamp(1.7rem, 2vw, 2.2rem);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+}
+
+.rayzaa-case-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-family: var(--font-mono);
+}
+
+.rayzaa-case-summary-copy,
+.rayzaa-ops-card p,
+.rayzaa-demo-step p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.rayzaa-case-stat-grid,
+.rayzaa-ops-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.rayzaa-case-stat-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.rayzaa-case-stat {
+  border: 1px solid var(--line);
+  background: #fcfaf6;
+}
+
+.rayzaa-case-stat strong {
+  font-family: var(--font-mono);
+  font-size: 28px;
+}
+
+.rayzaa-case-stat p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.rayzaa-score-band {
+  gap: 10px;
+}
+
+.rayzaa-ops-surface {
+  display: grid;
+  gap: 18px;
+}
+
+.rayzaa-ops-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding: 0 18px;
+}
+
+.rayzaa-demo-flow {
+  display: grid;
+  gap: 14px;
+  padding: 0 18px 18px;
+}
+
+.rayzaa-demo-flow-head {
+  display: grid;
+  gap: 6px;
+}
+
+.rayzaa-demo-step-list {
+  display: grid;
+  gap: 10px;
+}
+
+.rayzaa-demo-step {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  background: #fcfaf6;
+}
+
+.rayzaa-demo-step strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 14px;
+}
+
+.rayzaa-demo-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  border: 1px solid var(--line);
+  background: #ffffff;
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.rayzaa-demo-complete {
+  border-left: 3px solid var(--state-healthy);
+}
+
+.rayzaa-demo-active,
+.rayzaa-demo-ready {
+  border-left: 3px solid var(--state-watch);
+}
+
+.rayzaa-demo-risk {
+  border-left: 3px solid var(--state-escalated);
+}
+
+.graph-shell {
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+}
+
+.graph-toolbar {
+  padding: 18px 18px 16px;
+  border-bottom: 1px solid var(--line);
+  background: #ffffff;
+}
+
+.graph-metric-strip {
+  gap: 10px;
+  padding: 16px 18px;
+}
+
+.graph-canvas {
+  min-height: 300px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.graph-legend {
+  padding: 14px 18px 18px;
+  background: #ffffff;
+}
+
+.replay-panel {
+  display: grid;
+  gap: 0;
+  padding: 0;
+}
+
+.replay-header {
+  border-bottom: 1px solid var(--line);
+}
+
+.replay-status-grid,
+.scenario-row,
+.timeline-shell {
+  padding: 18px;
+}
+
+.replay-status-grid {
+  margin: 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.scenario-row {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.scenario-card {
+  min-width: 0;
+  padding: 14px 16px;
+}
+
+.timeline-shell {
+  gap: 14px;
+}
+
+.timeline-points {
+  grid-template-columns: 1fr;
+}
+
+.timeline-points button {
+  padding: 14px;
+}
+
+.evidence-scroll {
+  gap: 16px;
+  padding: 20px 22px 24px;
+}
+
+.case-card,
+.info-block,
+.policy-panel {
+  background: #ffffff;
+}
+
+.case-metadata-grid {
+  gap: 12px;
+}
+
+.case-metric-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.tab-strip {
+  gap: 6px;
+}
+
+.tab-strip button {
+  min-height: 38px;
+  padding: 8px 12px;
+}
+
+.evidence-row,
+.factor-row,
+.case-timeline-body {
+  padding: 14px;
+}
+
+.case-timeline-list {
+  gap: 12px;
+}
+
+.empty-state {
+  min-height: 180px;
+}
+
+@media (max-width: 1440px) {
   .ops-banner {
     grid-template-columns: 1fr;
   }
@@ -1652,16 +2264,8 @@ button {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .command-grid {
-    grid-template-columns: 280px minmax(0, 1fr) 360px;
-  }
-
-  .payment-proof-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .payment-proof-sequence {
-    grid-template-columns: repeat(5, minmax(120px, 1fr));
+  .rayzaa-command-layout {
+    grid-template-columns: minmax(250px, 0.9fr) minmax(0, 1.4fr) minmax(290px, 0.95fr);
   }
 }
 
@@ -1670,7 +2274,13 @@ button {
     padding: 16px;
   }
 
-  .command-grid {
+  .portal-header,
+  .rayzaa-shell-header {
+    top: 16px;
+  }
+
+  .rayzaa-shell-header,
+  .rayzaa-command-layout {
     grid-template-columns: 1fr;
   }
 
@@ -1681,7 +2291,11 @@ button {
   .payment-proof-sequence,
   .center-context-bar,
   .payeasy-kpi-grid,
-  .payeasy-handoff-grid {
+  .payeasy-handoff-grid,
+  .rayzaa-case-stat-grid,
+  .rayzaa-ops-grid,
+  .rayzaa-queue-metrics,
+  .case-metric-grid {
     grid-template-columns: 1fr;
   }
 
@@ -1692,12 +2306,21 @@ button {
   }
 
   .portal-header,
-  .payment-proof-header {
+  .payment-proof-header,
+  .rayzaa-case-summary-head {
     flex-direction: column;
   }
 
   .score-band {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .payment-proof-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .payment-proof-sequence {
+    grid-template-columns: repeat(5, minmax(90px, 1fr));
   }
 }
 
@@ -1705,7 +2328,8 @@ button {
   .portal-header,
   .topbar,
   .panel-header,
-  .replay-header {
+  .replay-header,
+  .rayzaa-shell-header {
     flex-direction: column;
     gap: 16px;
   }
@@ -1715,9 +2339,16 @@ button {
   .topbar-status,
   .payment-status-cluster,
   .tab-strip,
-  .action-row {
+  .action-row,
+  .rayzaa-shell-actions,
+  .rayzaa-header-controls {
     width: 100%;
     flex-wrap: wrap;
+  }
+
+  .rayzaa-status-copy {
+    justify-items: start;
+    text-align: left;
   }
 
   .switch-link {
@@ -1733,5 +2364,21 @@ button {
 
   .score-band {
     grid-template-columns: 1fr;
+  }
+
+  .payment-proof-sequence {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .payment-sequence-step {
+    justify-items: start;
+    text-align: left;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+  }
+
+  .payment-sequence-step:not(:last-child)::after {
+    display: none;
   }
 }

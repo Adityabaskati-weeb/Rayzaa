@@ -6,8 +6,10 @@ import { useEffect, useRef, useState } from "react";
 import { getRuntimeConfig } from "../lib/runtime-config";
 import EvidenceLensPanel from "./command-center/evidence-lens-panel";
 import { compactNumber, DEFAULT_POLICY, formatTimestamp } from "./command-center/formatters";
+import QueuePanel from "./command-center/queue-panel";
 import ReplayPanel from "./command-center/replay-panel";
 import SignalRailPanel from "./command-center/signal-rail-panel";
+import TrustStatePill from "./command-center/trust-state-pill";
 
 const TrustGraph = dynamic(() => import("./trust-graph"), {
   ssr: false,
@@ -27,6 +29,7 @@ const TrustGraph = dynamic(() => import("./trust-graph"), {
 
 const { apiBase: API_BASE, wsUrl: WS_URL, backendConfigured } = getRuntimeConfig();
 const EMPTY_GRAPH = { nodes: [], edges: [] };
+const EVIDENCE_GROUP_KEYS = ["modelEvidence", "graphEvidence", "driftEvidence", "policyEvidence"];
 
 function isBaselineCase(caseRecord) {
   return Boolean(caseRecord?.isBaselineSeed || String(caseRecord?.lastTransactionId || "").startsWith("seed_"));
@@ -462,6 +465,13 @@ export default function CommandCenter() {
     { key: "drift", label: "Drift", value: Number(scores.drift || focusCase?.driftScore || 0) },
     { key: "fused", label: "Fused", value: Number(scores.fused || focusCase?.fusedScore || 0) }
   ];
+  const evidenceSignalCount = EVIDENCE_GROUP_KEYS.reduce((total, key) => {
+    const items = Array.isArray(evidence?.[key]?.items) ? evidence[key].items : [];
+    return total + items.length;
+  }, 0);
+  const caseTimelineCount = Array.isArray(focusCase?.timeline) ? focusCase.timeline.length : 0;
+  const liveViewActive = !replayOverlayActive && replayContext.mode !== "replay-ready";
+  const replayViewActive = !liveViewActive;
 
   async function startScenario(scenarioId) {
     setLaunchingScenario(scenarioId);
@@ -511,6 +521,21 @@ export default function CommandCenter() {
     }
   }
 
+  function activateLiveView() {
+    setManualReplayIndex(null);
+  }
+
+  function activateReplayView() {
+    if (!replayAvailableForNarrative) {
+      return;
+    }
+    setActiveTab("evidence");
+    if (scenarioReplayLoaded) {
+      setSelectedCase(null);
+    }
+    setManualReplayIndex(Math.max(0, liveReplayIndex));
+  }
+
   return (
     <main className="app-shell">
       {!backendConfigured && (
@@ -526,12 +551,17 @@ export default function CommandCenter() {
           </p>
         </section>
       )}
-      <header className="topbar">
-        <div>
-          <p className="eyebrow">Rayzaa</p>
-          <h1>Trust Operations Command</h1>
+      <header className="panel rayzaa-shell-header">
+        <div className="rayzaa-shell-brand">
+          <div>
+            <p className="eyebrow">Rayzaa</p>
+            <h1>Trust Operations Command</h1>
+          </div>
+          <p className="rayzaa-shell-copy">
+            Analyst-facing trust investigation surface for live intake, queue triage, typed evidence, and replay chronology.
+          </p>
         </div>
-        <div className="topbar-status">
+        <div className="rayzaa-shell-actions">
           <nav className="dashboard-switch">
             <Link href="/payeasy" className="switch-link">
               PayEasy
@@ -540,11 +570,26 @@ export default function CommandCenter() {
               Rayzaa command
             </Link>
           </nav>
-          <div className={`status-chip ${connection}`}>
-            <span className="status-dot" />
-            {connection}
+          <div className="rayzaa-header-controls">
+            <div className="mode-switch" aria-label="Analyst context mode">
+              <button type="button" className={liveViewActive ? "active" : ""} onClick={activateLiveView}>
+                Live
+              </button>
+              <button
+                type="button"
+                className={replayViewActive ? "active" : ""}
+                onClick={activateReplayView}
+                disabled={!replayAvailableForNarrative}
+              >
+                Replay
+              </button>
+            </div>
+            <div className={`status-chip ${connection}`}>
+              <span className="status-dot" />
+              {connection}
+            </div>
           </div>
-          <div className="status-copy">
+          <div className="rayzaa-status-copy">
             <strong>{statusHeadline}</strong>
             <span>
               {statusTitle}{" "}
@@ -554,154 +599,157 @@ export default function CommandCenter() {
         </div>
       </header>
 
-      <section className="panel ops-banner">
-        <div className="ops-sequence">
-          <div className="ops-banner-header">
-            <div>
-              <p className="eyebrow">Demo Overlay</p>
-              <h2>Deterministic operational flow</h2>
+      <section className="rayzaa-command-layout">
+        <aside className="rayzaa-column rayzaa-column-left">
+          <SignalRailPanel signalRail={state?.signalRail || []} onSelectCase={selectCaseFromSignal} />
+          <section className="panel rayzaa-queue-surface">
+            <div className="panel-header">
+              <div>
+                <p className="eyebrow">Queue Posture</p>
+                <h2>Review and escalation queue</h2>
+              </div>
             </div>
-            <span className="ops-banner-copy">
-              Demo mode remains locked to the live payment path before Trust Replay opens.
-            </span>
-          </div>
-          <div className="ops-sequence-grid">
-            {demoSequence.map((step) => (
-              <div key={step.id} className={`ops-step ops-${step.status}`}>
-                <span className="ops-step-index">{step.step}</span>
-                <div className="ops-step-copy">
-                  <strong>{step.label}</strong>
-                  <span>{step.meta}</span>
+            <div className="rayzaa-queue-metrics">
+              <div className="rayzaa-queue-metric">
+                <span>Review required</span>
+                <strong>{queueCounts.review}</strong>
+              </div>
+              <div className="rayzaa-queue-metric">
+                <span>Escalated</span>
+                <strong>{queueCounts.escalated}</strong>
+              </div>
+              <div className="rayzaa-queue-metric">
+                <span>Live trigger</span>
+                <strong>{latestLiveSignal?.transactionId || "Pending"}</strong>
+              </div>
+            </div>
+            <QueuePanel queue={queue} onSelectCase={loadCase} selectedCaseId={selectedCase?.caseId || ""} />
+          </section>
+        </aside>
+
+        <section className="rayzaa-column rayzaa-column-center">
+          <section className="panel rayzaa-case-summary">
+            <div className="rayzaa-case-summary-head">
+              <div>
+                <p className="eyebrow">Case Studio</p>
+                <h2>{focusCase?.title || "Awaiting live or replay case selection"}</h2>
+                <div className="rayzaa-case-meta">
+                  <span>Case {focusCase?.caseId || "pending-case"}</span>
+                  <span>{focusCase ? sourceLabel(focusCase.source, focusCase) : "Live intake"}</span>
+                  <span>{focusCase?.lastTransactionId || "Awaiting persisted transaction"}</span>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-        <div className="ops-overview-grid">
-          {operationsOverview.map((item) => (
-            <div key={item.label} className="ops-overview-card">
-              <span className="ops-overview-label">{item.label}</span>
-              <strong>{item.value}</strong>
-              <span>{item.meta}</span>
+              <TrustStatePill value={trustState} />
             </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="panel handoff-brief">
-        <div className="handoff-brief-copy">
-          <p className="eyebrow">Customer Payment Handoff</p>
-          <h2>PayEasy owns checkout. Rayzaa owns trust evaluation and investigation.</h2>
-          <p>
-            Customer-triggered Razorpay payments originate in the PayEasy dashboard, then enter Rayzaa through the same live ingest path used by queueing, evidence, alerts, and replay.
-          </p>
-        </div>
-        <div className="handoff-brief-grid">
-          <div className="handoff-brief-card">
-            <span>Latest live trigger</span>
-            <strong>{latestLiveSignal?.transactionId || "Pending"}</strong>
-            <p>
-              {latestLiveSignal
-                ? `${latestLiveSignal.accountId} | ${compactNumber(latestLiveSignal.fusedScore)} fused | ${latestLiveSignal.trustState}`
-                : "Customer checkout is still waiting on a live payment trigger."}
+            <p className="rayzaa-case-summary-copy">
+              {focusCase?.summary ||
+                "Signal Rail selection or live ingest will pin the investigation context for evidence review, queue action, and replay analysis."}
             </p>
-          </div>
-          <div className="handoff-brief-card">
-            <span>Queue posture</span>
-            <strong>{queue.length ? `${queue.length} active` : "Queue clear"}</strong>
-            <p>{queue.length ? "Analyst triage is active." : "No live cases currently require manual action."}</p>
-          </div>
-          <div className="handoff-brief-card">
-            <span>Replay readiness</span>
-            <strong>{replayAvailableForNarrative ? "Available" : "Timeline only"}</strong>
-            <p>
-              {replayAvailableForNarrative
-                ? `${replayContext.totalSteps} chronology steps are ready for investigation.`
-                : "Replay will unlock after the live payment path produces checkpoints."}
-            </p>
-          </div>
-          <Link href="/payeasy" className="handoff-brief-link">
-            <span>Open PayEasy dashboard</span>
-            <strong>Go to customer checkout surface</strong>
-            <p>Use the separate customer-facing dashboard to launch the Razorpay test payment.</p>
-          </Link>
-        </div>
-      </section>
-
-      <section className="command-grid">
-        <SignalRailPanel signalRail={state?.signalRail || []} onSelectCase={selectCaseFromSignal} />
-
-        <section className="panel center-panel">
-          <div className="center-context-bar">
-            <div className="center-context-card">
-              <span className="context-label">Active investigation</span>
-              <strong>{focusCase?.title || "Awaiting live or replay case selection"}</strong>
-              <span className="center-context-meta">
-                {focusCase
-                  ? `${focusCase.caseId} | ${sourceLabel(focusCase.source)} | ${focusCase.lastTransactionId || "transaction pending"}`
-                  : "Signal Rail selection or live ingest will pin the investigation context."}
-              </span>
-            </div>
-            <div className="center-context-card">
-              <span className="context-label">Operational context</span>
-              <strong>{replayModeDisplay}</strong>
-              <span className="center-context-meta">
-                {!replayAvailableForNarrative
-                  ? `Replay remains locked until the first non-seed live payment arrives. Baseline signals: ${baselineSignalCount}.`
-                  : replayContext.mode === "replay-ready"
-                  ? `Replay ready | last live signal ${latestLiveSignal ? formatTimestamp(latestLiveSignal.timestamp) : "pending"} | queue ${queue.length || 0}`
-                  : replayContext.hasReplay
-                    ? `${replayContext.activeStepIndex || replaySteps.length}/${replayContext.totalSteps || replaySteps.length} steps | ${trustState} focus`
-                  : `Last live signal ${latestLiveSignal ? formatTimestamp(latestLiveSignal.timestamp) : "pending"} | queue ${queue.length || 0}`}
-              </span>
-            </div>
-          </div>
-          <div className="score-band">
-            {scoreBars.map((item) => (
-              <div key={item.key} className="score-card">
-                <div className="score-label-row">
-                  <span>{item.label}</span>
-                  <strong>{compactNumber(item.value)}%</strong>
-                </div>
-                <div className="meter-track">
-                  <div className={`meter-fill meter-${item.key}`} style={{ width: `${Math.min(100, item.value)}%` }} />
-                </div>
+            <div className="rayzaa-case-stat-grid">
+              <div className="rayzaa-case-stat">
+                <span>Trust score</span>
+                <strong>{compactNumber(Number(scores.fused || focusCase?.fusedScore || 0))}%</strong>
+                <p>Fused score for the active investigation.</p>
               </div>
-            ))}
-          </div>
-          <TrustGraph elements={[...(graph.nodes || []), ...(graph.edges || [])]} trustState={trustState} replayLabel={trustLabel} />
+              <div className="rayzaa-case-stat">
+                <span>Evidence count</span>
+                <strong>{evidenceSignalCount}</strong>
+                <p>Typed evidence signals above the current threshold.</p>
+              </div>
+              <div className="rayzaa-case-stat">
+                <span>Timeline</span>
+                <strong>{caseTimelineCount}</strong>
+                <p>Persisted chronology events for this case.</p>
+              </div>
+            </div>
+            <div className="score-band rayzaa-score-band">
+              {scoreBars.map((item) => (
+                <div key={item.key} className="score-card">
+                  <div className="score-label-row">
+                    <span>{item.label}</span>
+                    <strong>{compactNumber(item.value)}%</strong>
+                  </div>
+                  <div className="meter-track">
+                    <div className={`meter-fill meter-${item.key}`} style={{ width: `${Math.min(100, item.value)}%` }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <EvidenceLensPanel
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            focusCase={focusCase}
+            trustState={trustState}
+            evidence={evidence}
+            replayContext={replayContext}
+            busyAction={busyAction}
+            onTakeAction={takeAction}
+            queue={queue}
+            onSelectCase={loadCase}
+            selectedCaseId={selectedCase?.caseId || ""}
+            policyDraft={policyDraft}
+            onPolicyChange={handlePolicyChange}
+            onSavePolicy={savePolicy}
+          />
         </section>
 
-        <EvidenceLensPanel
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
-          focusCase={focusCase}
-          trustState={trustState}
-          evidence={evidence}
-          replayContext={replayContext}
-          busyAction={busyAction}
-          onTakeAction={takeAction}
-          queue={queue}
-          onSelectCase={loadCase}
-          selectedCaseId={selectedCase?.caseId || ""}
-          policyDraft={policyDraft}
-          onPolicyChange={handlePolicyChange}
-          onSavePolicy={savePolicy}
-        />
-      </section>
+        <aside className="rayzaa-column rayzaa-column-right">
+          <TrustGraph elements={[...(graph.nodes || []), ...(graph.edges || [])]} trustState={trustState} replayLabel={trustLabel} />
 
-      <ReplayPanel
-        scenarios={scenarios}
-        currentScenarioId={state?.system?.scenarioId}
-        replaySteps={replaySteps}
-        effectiveReplayIndex={effectiveReplayIndex}
-        replayContext={replayContext}
-        demoFlow={demoFlow}
-        launchingScenario={launchingScenario}
-        onStartScenario={startScenario}
-        onFollowLive={() => setManualReplayIndex(null)}
-        onReplayIndexChange={setManualReplayIndex}
-      />
+          <ReplayPanel
+            scenarios={scenarios}
+            currentScenarioId={state?.system?.scenarioId}
+            replaySteps={replaySteps}
+            effectiveReplayIndex={effectiveReplayIndex}
+            replayContext={replayContext}
+            demoFlow={demoFlow}
+            launchingScenario={launchingScenario}
+            onStartScenario={startScenario}
+            onFollowLive={activateLiveView}
+            onReplayIndexChange={setManualReplayIndex}
+          />
+
+          <section className="panel rayzaa-ops-surface">
+            <div className="panel-header">
+              <div>
+                <p className="eyebrow">Operations</p>
+                <h2>Live command context</h2>
+              </div>
+              <Link href="/payeasy" className="ghost-button portal-link-button">
+                Open PayEasy
+              </Link>
+            </div>
+            <div className="rayzaa-ops-grid">
+              {operationsOverview.map((item) => (
+                <div key={item.label} className="rayzaa-ops-card">
+                  <span>{item.label}</span>
+                  <strong>{item.value}</strong>
+                  <p>{item.meta}</p>
+                </div>
+              ))}
+            </div>
+            <div className="rayzaa-demo-flow">
+              <div className="rayzaa-demo-flow-head">
+                <span className="context-label">Deterministic operational flow</span>
+                <p>{demoFlow.locked ? "Replay stays gated behind the first non-seed live payment." : "Live flow is active."}</p>
+              </div>
+              <div className="rayzaa-demo-step-list">
+                {demoSequence.map((step) => (
+                  <div key={step.id} className={`rayzaa-demo-step rayzaa-demo-${step.status}`}>
+                    <span className="rayzaa-demo-index">{step.step}</span>
+                    <div>
+                      <strong>{step.label}</strong>
+                      <p>{step.meta}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        </aside>
+      </section>
     </main>
   );
 }
