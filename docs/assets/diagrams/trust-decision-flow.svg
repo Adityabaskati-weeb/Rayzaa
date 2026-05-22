@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="700" viewBox="0 0 1180 700" role="img" aria-labelledby="title desc">
+  <title id="title">Trust decision flow</title>
+  <desc id="desc">Feature generation feeds XGBoost, SHAP, graph, drift, and policy thresholds into trust-state fusion, producing queue, evidence lens, timeline, and trust replay.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1a1a1a"/>
+    </marker>
+    <style>
+      .bg { fill: #faf7f2; }
+      .node { fill: #ffffff; stroke: #d7d0c4; stroke-width: 2; }
+      .accent { fill: #fcfaf6; stroke: #1a1a1a; stroke-width: 2; }
+      .title { fill: #1a1a1a; font-family: 'IBM Plex Sans', 'Segoe UI', sans-serif; font-size: 19px; font-weight: 600; }
+      .sub { fill: #66635d; font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 1.2px; }
+      .line { stroke: #1a1a1a; stroke-width: 2.2; marker-end: url(#arrow); }
+    </style>
+  </defs>
+  <rect class="bg" x="0" y="0" width="1180" height="700"/>
+  <rect class="node" x="420" y="40" width="340" height="70"/>
+  <text class="title" x="590" y="82" text-anchor="middle">Incoming transaction</text>
+
+  <rect class="node" x="420" y="155" width="340" height="70"/>
+  <text class="title" x="590" y="197" text-anchor="middle">Feature generation</text>
+
+  <rect class="node" x="110" y="285" width="250" height="78"/>
+  <text class="title" x="235" y="328" text-anchor="middle">Graph heuristics</text>
+
+  <rect class="node" x="420" y="285" width="340" height="78"/>
+  <text class="title" x="590" y="320" text-anchor="middle">XGBoost fraud score</text>
+  <text class="sub" x="590" y="344" text-anchor="middle">primary scorer</text>
+
+  <rect class="node" x="820" y="285" width="250" height="78"/>
+  <text class="title" x="945" y="328" text-anchor="middle">Drift signals</text>
+
+  <rect class="node" x="420" y="415" width="340" height="78"/>
+  <text class="title" x="590" y="450" text-anchor="middle">SHAP model evidence</text>
+  <text class="sub" x="590" y="474" text-anchor="middle">explainability layer</text>
+
+  <rect class="node" x="110" y="525" width="250" height="78"/>
+  <text class="title" x="235" y="568" text-anchor="middle">Policy thresholds</text>
+
+  <rect class="accent" x="420" y="535" width="340" height="88"/>
+  <text class="title" x="590" y="575" text-anchor="middle">Trust-state fusion</text>
+  <text class="sub" x="590" y="601" text-anchor="middle">Healthy / Watch / Fractured / Escalated</text>
+
+  <rect class="node" x="820" y="525" width="250" height="78"/>
+  <text class="title" x="945" y="568" text-anchor="middle">Operational outputs</text>
+  <text class="sub" x="945" y="592" text-anchor="middle">queue / evidence / timeline / replay</text>
+
+  <line class="line" x1="590" y1="110" x2="590" y2="155"/>
+  <line class="line" x1="590" y1="225" x2="590" y2="285"/>
+  <line class="line" x1="590" y1="363" x2="590" y2="415"/>
+  <line class="line" x1="590" y1="493" x2="590" y2="535"/>
+  <line class="line" x1="360" y1="324" x2="420" y2="324"/>
+  <line class="line" x1="820" y1="324" x2="760" y2="324"/>
+  <line class="line" x1="360" y1="564" x2="420" y2="564"/>
+  <line class="line" x1="760" y1="579" x2="820" y2="564"/>
+</svg>

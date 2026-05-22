@@ -52,15 +52,7 @@ It is used to:
 
 ## Why Two Dashboards
 
-```mermaid
-flowchart LR
-    A["Customer / Operator"] --> B["PayEasy Dashboard"]
-    B --> C["Razorpay Checkout"]
-    C --> D["Razorpay Webhook"]
-    D --> E["Rayzaa Backend"]
-    E --> F["Rayzaa Command Center"]
-    F --> G["Analyst / Fraud Ops Team"]
-```
+![Two-dashboard product flow](./docs/assets/diagrams/two-dashboard-flow.svg)
 
 PayEasy answers:
 
@@ -75,48 +67,11 @@ Rayzaa answers:
 
 ## End-to-End Transaction Flow
 
-```mermaid
-sequenceDiagram
-    participant User as Customer
-    participant PayEasy as PayEasy Dashboard
-    participant Razorpay as Razorpay
-    participant API as Rayzaa API
-    participant Model as XGBoost + SHAP
-    participant Ops as Rayzaa Command Center
-    participant Telegram as Telegram
-
-    User->>PayEasy: Start checkout
-    PayEasy->>API: Create order
-    API->>Razorpay: Create Razorpay order
-    Razorpay-->>PayEasy: Checkout session
-    User->>Razorpay: Complete payment
-    Razorpay-->>API: payment.captured webhook
-    API->>Model: Build features and score
-    Model-->>API: Fraud score + SHAP explanation
-    API->>API: Add graph, drift, policy, fusion
-    API-->>Ops: Update signal rail, queue, timeline, replay
-    API-->>Telegram: Send operational alert if threshold met
-```
+![End-to-end payment flow](./docs/assets/diagrams/payment-to-investigation-flow.svg)
 
 ## Trust Decision Flow
 
-```mermaid
-flowchart TD
-    A["Incoming transaction"] --> B["Feature generation"]
-    B --> C["XGBoost fraud score"]
-    C --> D["SHAP model evidence"]
-    B --> E["Graph heuristics"]
-    B --> F["Drift signals"]
-    D --> G["Trust-state fusion"]
-    E --> G
-    F --> G
-    H["Policy thresholds"] --> G
-    G --> I["Healthy / Watch / Fractured / Escalated"]
-    I --> J["Queue"]
-    I --> K["Evidence Lens"]
-    I --> L["Timeline"]
-    I --> M["Trust Replay"]
-```
+![Trust decision flow](./docs/assets/diagrams/trust-decision-flow.svg)
 
 ## Current ML Stack
 
@@ -179,15 +134,7 @@ When a real payment enters Rayzaa through the webhook path, the following update
 
 ## Deployment Topology
 
-```mermaid
-flowchart LR
-    A["Vercel<br/>Frontend"] --> B["Render<br/>FastAPI + WebSocket API"]
-    B --> C["Locked model artifact<br/>benchmark_v3"]
-    B --> D["Razorpay webhook"]
-    B --> E["Telegram Bot API"]
-    A --> F["PayEasy dashboard"]
-    A --> G["Rayzaa command center"]
-```
+![Deployment topology](./docs/assets/diagrams/deployment-topology.svg)
 
 ## Repository Structure
 
@@ -212,40 +159,9 @@ Rayzaa/
     check_frontend_build.ps1
 ```
 
-## Demo Flow
-
-The recommended demo order is:
-
-1. seed benign baseline
-2. initiate one payment from PayEasy
-3. wait for webhook ingest
-4. open Rayzaa
-5. show trust-state transition
-6. show Evidence Lens
-7. show queue / timeline / graph
-8. show Telegram alert
-9. open replay
-
-## Local Development
-
-Use the authoritative workspace:
-
-- `C:\Projects\Rayzaa`
-
-Do not use the OneDrive mirror as the build or runtime workspace.
-
-Key scripts:
-
-- `scripts\start_demo.ps1`
-- `scripts\start_dev.ps1`
-- `scripts\run_benchmark.ps1`
-- `scripts\check_frontend_build.ps1`
-
 ## More Documentation
 
 - [Architecture](./docs/architecture.md)
-- [Demo Flow](./docs/demo-flow.md)
-- [Final Demo Runbook](./docs/final-demo-runbook.md)
 - [Live Integrations](./docs/live-integrations.md)
 - [Render Backend](./docs/render-backend.md)
 - [Vercel Frontend](./docs/vercel-frontend.md)

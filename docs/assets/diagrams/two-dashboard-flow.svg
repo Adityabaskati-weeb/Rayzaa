@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="250" viewBox="0 0 1200 250" role="img" aria-labelledby="title desc">
+  <title id="title">Rayzaa two-dashboard product flow</title>
+  <desc id="desc">Customer and operator move through PayEasy, Razorpay, Rayzaa backend, and Rayzaa command center to fraud operations.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1a1a1a"/>
+    </marker>
+    <style>
+      .bg { fill: #faf7f2; }
+      .panel { fill: #ffffff; stroke: #d7d0c4; stroke-width: 2; }
+      .text { fill: #1a1a1a; font-family: 'IBM Plex Sans', 'Segoe UI', sans-serif; font-size: 20px; font-weight: 600; }
+      .label { fill: #66635d; font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: 1.4px; text-transform: uppercase; }
+      .line { stroke: #1a1a1a; stroke-width: 2.2; marker-end: url(#arrow); }
+    </style>
+  </defs>
+  <rect class="bg" x="0" y="0" width="1200" height="250"/>
+  <rect class="panel" x="40" y="70" width="145" height="82"/>
+  <rect class="panel" x="240" y="70" width="170" height="82"/>
+  <rect class="panel" x="465" y="70" width="170" height="82"/>
+  <rect class="panel" x="690" y="70" width="170" height="82"/>
+  <rect class="panel" x="915" y="70" width="225" height="82"/>
+  <text class="label" x="85" y="62">Actor</text>
+  <text class="label" x="295" y="62">Dashboard</text>
+  <text class="label" x="515" y="62">Gateway</text>
+  <text class="label" x="735" y="62">Backend</text>
+  <text class="label" x="970" y="62">Analyst Surface</text>
+  <text class="text" x="112" y="118" text-anchor="middle">Customer</text>
+  <text class="text" x="325" y="118" text-anchor="middle">PayEasy</text>
+  <text class="text" x="550" y="118" text-anchor="middle">Razorpay</text>
+  <text class="text" x="775" y="118" text-anchor="middle">Rayzaa API</text>
+  <text class="text" x="1028" y="118" text-anchor="middle">Rayzaa Command</text>
+  <line class="line" x1="185" y1="111" x2="240" y2="111"/>
+  <line class="line" x1="410" y1="111" x2="465" y2="111"/>
+  <line class="line" x1="635" y1="111" x2="690" y2="111"/>
+  <line class="line" x1="860" y1="111" x2="915" y2="111"/>
+  <text class="label" x="214" y="101" text-anchor="middle">checkout</text>
+  <text class="label" x="439" y="101" text-anchor="middle">payment + webhook</text>
+  <text class="label" x="664" y="101" text-anchor="middle">scoring + fusion</text>
+  <text class="label" x="889" y="101" text-anchor="middle">queue + replay</text>
+  <text class="label" x="40" y="205">Idea: PayEasy proves the payment happened. Rayzaa explains what that payment means operationally.</text>
+</svg>
