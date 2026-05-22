@@ -1,0 +1,4 @@
+deploy/artifacts/fraud_model/benchmark_v3/*.json -text
+deploy/artifacts/fraud_model/benchmark_v3/*.joblib binary
+deploy/artifacts/fraud_model/benchmark_v3/*.npy binary
+deploy/artifacts/fraud_model/benchmark_v3/*.npz binary
