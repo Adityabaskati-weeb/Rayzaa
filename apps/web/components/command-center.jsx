@@ -32,6 +32,16 @@ const EMPTY_GRAPH = { nodes: [], edges: [] };
 const EVIDENCE_GROUP_KEYS = ["modelEvidence", "graphEvidence", "driftEvidence", "policyEvidence"];
 const LOCAL_HOSTS = new Set(["127.0.0.1", "localhost"]);
 const POLL_INTERVAL_MS = 10000;
+const MODEL_SCORECARD_ROWS = [
+  { label: "Model", value: "XGBoost" },
+  { label: "Artifact", value: "benchmark_v3" },
+  { label: "Dataset", value: "IBM AML" },
+  { label: "ROC AUC", value: "0.9445" },
+  { label: "PR AUC", value: "0.8436" },
+  { label: "Precision @ 0.5", value: "0.7204" },
+  { label: "Recall @ 0.5", value: "0.7901" },
+  { label: "F1 @ 0.5", value: "0.7536" },
+];
 
 function isBaselineCase(caseRecord) {
   return Boolean(caseRecord?.isBaselineSeed || String(caseRecord?.lastTransactionId || "").startsWith("seed_"));
@@ -800,6 +810,31 @@ export default function CommandCenter() {
                   </div>
                 ))}
               </div>
+            </div>
+          </section>
+
+          <section className="panel rayzaa-scorecard-panel">
+            <div className="panel-header">
+              <div>
+                <p className="eyebrow">Model Validation</p>
+                <h2>Model Scorecard</h2>
+              </div>
+            </div>
+            <div className="rayzaa-scorecard-body">
+              <table className="rayzaa-scorecard-table">
+                <tbody>
+                  {MODEL_SCORECARD_ROWS.map((row) => (
+                    <tr key={row.label}>
+                      <th scope="row">{row.label}</th>
+                      <td>{row.value}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <p className="rayzaa-scorecard-note">
+                Offline benchmark validation for the locked runtime artifact. Live payments update case-level scores,
+                evidence, queue state, and replay chronology, not benchmark metrics.
+              </p>
             </div>
           </section>
           </aside>

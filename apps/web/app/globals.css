@@ -2136,9 +2136,64 @@ button {
   gap: 18px;
 }
 
+.rayzaa-scorecard-panel {
+  display: grid;
+  gap: 0;
+}
+
 .rayzaa-ops-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   padding: 0 18px;
+}
+
+.rayzaa-scorecard-body {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+}
+
+.rayzaa-scorecard-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.rayzaa-scorecard-table th,
+.rayzaa-scorecard-table td {
+  padding: 11px 0;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+
+.rayzaa-scorecard-table tr:last-child th,
+.rayzaa-scorecard-table tr:last-child td {
+  border-bottom: none;
+}
+
+.rayzaa-scorecard-table th {
+  width: 52%;
+  padding-right: 14px;
+  color: var(--muted);
+  text-align: left;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-family: var(--font-mono);
+}
+
+.rayzaa-scorecard-table td {
+  color: var(--text);
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.rayzaa-scorecard-note {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
 }
 
 .rayzaa-demo-flow {
