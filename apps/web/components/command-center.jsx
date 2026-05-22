@@ -34,6 +34,7 @@ const LOCAL_HOSTS = new Set(["127.0.0.1", "localhost"]);
 const POLL_INTERVAL_MS = 10000;
 const MODEL_SCORECARD_ROWS = [
   { label: "Model", value: "XGBoost" },
+  { label: "Neural sidecar", value: "Planned anomaly sidecar" },
   { label: "Artifact", value: "benchmark_v3" },
   { label: "Dataset", value: "IBM AML" },
   { label: "ROC AUC", value: "0.9445" },
@@ -833,7 +834,8 @@ export default function CommandCenter() {
               </table>
               <p className="rayzaa-scorecard-note">
                 Offline benchmark validation for the locked runtime artifact. Live payments update case-level scores,
-                evidence, queue state, and replay chronology, not benchmark metrics.
+                evidence, queue state, and replay chronology, not benchmark metrics. Neural anomaly sidecar is roadmap
+                only and is not part of the deployed runtime path yet.
               </p>
             </div>
           </section>
