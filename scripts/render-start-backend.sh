@@ -35,8 +35,28 @@ RUNTIME_BUNDLE_DIR="${RAYZAA_ARTIFACT_DIR}/fraud_model/${RAYZAA_LOCKED_MODEL_BUN
 SOURCE_BUNDLE_DIR="${RAYZAA_APPROVED_ARTIFACT_SOURCE}"
 
 if [[ -d "${SOURCE_BUNDLE_DIR}" ]]; then
-  mkdir -p "${RUNTIME_BUNDLE_DIR}"
-  cp -f "${SOURCE_BUNDLE_DIR}"/* "${RUNTIME_BUNDLE_DIR}/"
+  export RUNTIME_BUNDLE_DIR
+  export SOURCE_BUNDLE_DIR
+  python - <<'PY'
+import os
+from pathlib import Path
+
+from apps.api.rayzaa_api.services.model_artifact import (
+    copy_artifact_bundle,
+    load_artifact_manifest,
+    validate_artifact_bundle,
+)
+
+source_dir = Path(os.environ["SOURCE_BUNDLE_DIR"])
+runtime_dir = Path(os.environ["RUNTIME_BUNDLE_DIR"])
+manifest_path = Path(os.environ["RAYZAA_ARTIFACT_MANIFEST"])
+
+manifest = load_artifact_manifest(manifest_path)
+validate_artifact_bundle(source_dir, manifest)
+copy_artifact_bundle(source_dir, runtime_dir, manifest)
+validate_artifact_bundle(runtime_dir, manifest)
+print(f"Seeded locked artifact bundle into {runtime_dir}")
+PY
 fi
 
 if [[ -n "${RENDER_EXTERNAL_URL:-}" && -z "${RAYZAA_PUBLIC_API_URL:-}" ]]; then
