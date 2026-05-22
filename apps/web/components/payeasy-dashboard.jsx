@@ -43,8 +43,6 @@ function connectionLabel(connection) {
 }
 
 export default function PayEasyDashboard() {
-  const shellRef = useRef(null);
-  const headerRef = useRef(null);
   const [state, setState] = useState(null);
   const [connection, setConnection] = useState("connecting");
   const keepAliveRef = useRef(null);
@@ -71,22 +69,6 @@ export default function PayEasyDashboard() {
       setConnection("degraded");
     });
   }, []);
-
-  useEffect(() => {
-    if (!shellRef.current || !headerRef.current) {
-      return undefined;
-    }
-
-    const updateHeaderOffset = () => {
-      const height = headerRef.current?.offsetHeight || 0;
-      shellRef.current?.style.setProperty("--shell-header-offset", `${height + 32}px`);
-    };
-
-    updateHeaderOffset();
-    window.addEventListener("resize", updateHeaderOffset);
-
-    return () => window.removeEventListener("resize", updateHeaderOffset);
-  }, [connection]);
 
   useEffect(() => {
     if (!backendConfigured) {
@@ -192,7 +174,7 @@ export default function PayEasyDashboard() {
   }
 
   return (
-    <main ref={shellRef} className="portal-shell">
+    <main className="portal-shell">
       {!backendConfigured && (
         <section className="panel">
           <div className="panel-header">
@@ -206,7 +188,7 @@ export default function PayEasyDashboard() {
           </p>
         </section>
       )}
-      <header ref={headerRef} className="portal-header panel">
+      <header className="portal-header panel">
         <div className="portal-brand">
           <p className="eyebrow">PayEasy</p>
           <h1>Live Checkout Surface</h1>

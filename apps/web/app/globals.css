@@ -1649,6 +1649,14 @@ button {
   position: relative;
 }
 
+.portal-shell {
+  --shell-header-offset: 232px;
+}
+
+.app-shell {
+  --shell-header-offset: 276px;
+}
+
 .panel {
   overflow: hidden;
 }
@@ -1656,9 +1664,9 @@ button {
 .portal-header,
 .rayzaa-shell-header {
   position: fixed;
-  top: 24px;
+  top: 0;
   left: 50%;
-  width: min(calc(100% - 48px), 1380px);
+  width: min(calc(100% - 32px), 1380px);
   transform: translateX(-50%);
   z-index: 20;
   align-items: center;
@@ -2325,8 +2333,7 @@ button {
 
   .portal-header,
   .rayzaa-shell-header {
-    top: 16px;
-    width: min(calc(100% - 32px), 1380px);
+    width: min(calc(100% - 24px), 1380px);
   }
 
   .rayzaa-shell-header,
@@ -2387,6 +2394,14 @@ button {
   .app-shell,
   .portal-shell {
     padding-top: var(--shell-header-offset, 360px);
+  }
+
+  .portal-shell {
+    --shell-header-offset: 288px;
+  }
+
+  .app-shell {
+    --shell-header-offset: 340px;
   }
 
   .portal-actions,

@@ -90,8 +90,6 @@ function connectionLabel(connection) {
 }
 
 export default function CommandCenter() {
-  const shellRef = useRef(null);
-  const headerRef = useRef(null);
   const [state, setState] = useState(null);
   const [activeTab, setActiveTab] = useState("evidence");
   const [selectedCase, setSelectedCase] = useState(null);
@@ -155,22 +153,6 @@ export default function CommandCenter() {
       setConnection("degraded");
     });
   }, []);
-
-  useEffect(() => {
-    if (!shellRef.current || !headerRef.current) {
-      return undefined;
-    }
-
-    const updateHeaderOffset = () => {
-      const height = headerRef.current?.offsetHeight || 0;
-      shellRef.current?.style.setProperty("--shell-header-offset", `${height + 32}px`);
-    };
-
-    updateHeaderOffset();
-    window.addEventListener("resize", updateHeaderOffset);
-
-    return () => window.removeEventListener("resize", updateHeaderOffset);
-  }, [connection, state, selectedCase, manualReplayIndex]);
 
   useEffect(() => {
     if (!backendConfigured) {
@@ -608,7 +590,7 @@ export default function CommandCenter() {
   }
 
   return (
-    <main ref={shellRef} className="app-shell">
+    <main className="app-shell">
       {!backendConfigured && (
         <section className="panel">
           <div className="panel-header">
@@ -622,7 +604,7 @@ export default function CommandCenter() {
           </p>
         </section>
       )}
-      <header ref={headerRef} className="panel rayzaa-shell-header">
+      <header className="panel rayzaa-shell-header">
         <div className="rayzaa-shell-brand">
           <div>
             <p className="eyebrow">Rayzaa</p>
