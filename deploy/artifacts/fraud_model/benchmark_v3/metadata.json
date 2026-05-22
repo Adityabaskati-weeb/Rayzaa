@@ -1,0 +1,103 @@
+{
+  "artifact_version": "v3",
+  "mode": "benchmark",
+  "source_dataset": "C:\\Users\\baska\\OneDrive\\Documents\\New project\\Rayzaa-app\\data\\processed\\ibm_aml\\HI-Small_Trans.csv",
+  "payment_rail_taxonomy": [
+    "account_transfer",
+    "internal_transfer",
+    "cheque",
+    "card",
+    "cash",
+    "crypto"
+  ],
+  "row_limit": 1000000,
+  "source_label_counts": {
+    "0": 999425,
+    "1": 575
+  },
+  "source_label_counts_by_rail": {
+    "account_transfer": {
+      "0": 98399,
+      "1": 483
+    },
+    "internal_transfer": {
+      "0": 444322,
+      "1": 0
+    },
+    "cheque": {
+      "0": 223783,
+      "1": 54
+    },
+    "card": {
+      "0": 146529,
+      "1": 19
+    },
+    "cash": {
+      "0": 58357,
+      "1": 18
+    },
+    "crypto": {
+      "0": 28035,
+      "1": 1
+    }
+  },
+  "sampled_rows": 8530,
+  "sampled_positive_rows": 575,
+  "sampled_negative_rows": 7955,
+  "negative_keep_probability_by_rail": {
+    "account_transfer": 0.058903,
+    "internal_transfer": 0.0009,
+    "cheque": 0.002896,
+    "card": 0.00273,
+    "cash": 0.006854,
+    "crypto": 0.014268
+  },
+  "feature_names": [
+    "amount_log",
+    "sender_velocity_1h",
+    "receiver_velocity_1h",
+    "pair_velocity_24h",
+    "sender_unique_counterparties_24h",
+    "amount_ratio_to_sender_avg",
+    "hour_of_day",
+    "is_cross_bank",
+    "is_self_transfer",
+    "is_cross_currency",
+    "fmt_account_transfer",
+    "fmt_internal_transfer",
+    "fmt_cheque",
+    "fmt_card",
+    "fmt_cash",
+    "fmt_crypto"
+  ],
+  "split_index": 6824,
+  "timings": {
+    "label_count_s": 1.739,
+    "feature_cache_build_s": 25.232,
+    "fit_s": 0.065,
+    "predict_s": 0.004
+  },
+  "metrics": {
+    "train_auc": 0.9944,
+    "test_auc": 0.9445,
+    "train_average_precision": 0.8667,
+    "test_average_precision": 0.8436,
+    "train_size": 6824,
+    "test_size": 1706
+  },
+  "background_size": 64,
+  "shap_benchmarks": {
+    "32": {
+      "init_s": 0.0231,
+      "call_s": 0.0014
+    },
+    "64": {
+      "init_s": 0.0247,
+      "call_s": 0.002
+    },
+    "128": {
+      "init_s": 0.0234,
+      "call_s": 0.0034
+    }
+  }
+}

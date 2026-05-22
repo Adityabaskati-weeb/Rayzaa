@@ -31,3 +31,13 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Allow the approved hosted model bundle
+!deploy/
+!deploy/artifacts/
+!deploy/artifacts/fraud_model/
+!deploy/artifacts/fraud_model/benchmark_v3/
+!deploy/artifacts/fraud_model/benchmark_v3/*.joblib
+!deploy/artifacts/fraud_model/benchmark_v3/*.npy
+!deploy/artifacts/fraud_model/benchmark_v3/*.npz
+!deploy/artifacts/fraud_model/benchmark_v3/*.json

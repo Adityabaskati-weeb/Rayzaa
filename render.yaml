@@ -1,0 +1,60 @@
+services:
+  - type: web
+    name: rayzaa-api
+    runtime: python
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: bash scripts/render-start-backend.sh
+    healthCheckPath: /health
+    autoDeploy: true
+    disk:
+      name: rayzaa-runtime
+      mountPath: /var/data/rayzaa
+      sizeGB: 2
+    envVars:
+      - key: DATABASE_URL
+        value: sqlite:////var/data/rayzaa/runtime/rayzaa.db
+      - key: RAYZAA_RUNTIME_DIR
+        value: /var/data/rayzaa/runtime
+      - key: RAYZAA_ARTIFACT_DIR
+        value: /var/data/rayzaa/artifacts
+      - key: RAYZAA_REPLAY_DIR
+        value: /var/data/rayzaa/replay
+      - key: RAYZAA_LOG_DIR
+        value: /var/data/rayzaa/logs
+      - key: RAYZAA_BENCHMARK_DIR
+        value: /var/data/rayzaa/benchmark
+      - key: RAYZAA_TMP_DIR
+        value: /var/data/rayzaa/tmp
+      - key: RAYZAA_MODEL_MODE
+        value: benchmark
+      - key: RAYZAA_LOCKED_MODEL_BUNDLE
+        value: benchmark_v3
+      - key: RAYZAA_ALLOW_ARTIFACT_AUTOTRAIN
+        value: "0"
+      - key: RAYZAA_ENFORCE_ARTIFACT_MANIFEST
+        value: "1"
+      - key: RAYZAA_ARTIFACT_MANIFEST
+        value: /opt/render/project/src/docs/approved_model_artifact.json
+      - key: RAYZAA_APPROVED_ARTIFACT_SOURCE
+        value: /opt/render/project/src/deploy/artifacts/fraud_model/benchmark_v3
+      - key: RAYZAA_DEMO_FLOW_LOCK
+        value: "1"
+      - key: RAYZAA_PUBLIC_APP_URL
+        sync: false
+      - key: RAYZAA_CORS_ORIGIN
+        sync: false
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: RAZORPAY_WEBHOOK_SECRET
+        sync: false
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_CHAT_ID
+        sync: false
+      - key: TELEGRAM_MESSAGE_THREAD_ID
+        sync: false
+      - key: RAYZAA_TELEGRAM_MIN_TRUST_STATE
+        value: Fractured
