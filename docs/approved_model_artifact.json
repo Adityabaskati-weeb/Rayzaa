@@ -1,0 +1,35 @@
+{
+  "bundle_id": "benchmark_v3",
+  "model_family": "xgboost",
+  "explainability": "shap",
+  "source_dataset": "IBM AML HI-Small_Trans.csv",
+  "metrics": {
+    "roc_auc": 0.94449,
+    "pr_auc": 0.84365,
+    "precision_at_0_5": 0.7204,
+    "recall_at_0_5": 0.79006,
+    "f1_at_0_5": 0.75362
+  },
+  "files": {
+    "xgb_model.joblib": {
+      "sha256": "db739ca17841fd40c5d7bca605321173fc646809ad854ede7d69cd3d816c227e",
+      "size": 238275
+    },
+    "metadata.json": {
+      "sha256": "0fa96f3abd08003f29a85b1d3ae79c015a1082de0eea0449b93dcf51130949ad",
+      "size": 2190
+    },
+    "background.npy": {
+      "sha256": "4227ab5722ae8f7cec4436e186b175c17c9ec7e9a0221ccf5902c80d09c308b5",
+      "size": 4224
+    },
+    "feature_cache.npz": {
+      "sha256": "7c383879c1f61d130838666c24f5d10a16018ed4ea102df053604ba9916c586c",
+      "size": 101030
+    },
+    "feature_cache_meta.json": {
+      "sha256": "6eb949b637aa8c5638e1db9d28e8bbf9a8703de61926cc95954e92834b676ba6",
+      "size": 1679
+    }
+  }
+}

@@ -16,7 +16,7 @@ In Vercel:
 2. Set the project `Root Directory` to:
 
 ```text
-apps/web
+Rayzaa-app/apps/web
 ```
 
 3. Framework preset:
