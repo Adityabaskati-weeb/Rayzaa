@@ -170,7 +170,7 @@ export default function CommandCenter() {
     window.addEventListener("resize", updateHeaderOffset);
 
     return () => window.removeEventListener("resize", updateHeaderOffset);
-  }, [connection, statusHeadline, statusTitle, replayModeDisplay]);
+  }, [connection, state, selectedCase, manualReplayIndex]);
 
   useEffect(() => {
     if (!backendConfigured) {
