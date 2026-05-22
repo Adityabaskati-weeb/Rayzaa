@@ -1645,43 +1645,30 @@ button {
 .portal-shell {
   gap: 32px;
   max-width: 1380px;
-  padding-top: var(--shell-fixed-offset, 0);
+  padding-top: var(--shell-header-offset, 280px);
   position: relative;
 }
 
 .portal-shell {
-  --shell-fixed-offset: 470px;
+  --shell-header-offset: 232px;
 }
 
 .app-shell {
-  --shell-fixed-offset: 760px;
+  --shell-header-offset: 276px;
 }
 
 .panel {
   overflow: hidden;
 }
 
-.portal-fixed-stack,
-.rayzaa-fixed-stack {
-  position: fixed;
-  top: 24px;
-  left: 50%;
-  width: min(calc(100% - 48px), 1380px);
-  transform: translateX(-50%);
-  z-index: 20;
-  display: grid;
-  gap: 20px;
-  align-items: start;
-}
-
 .portal-header,
 .rayzaa-shell-header {
-  position: relative;
-  top: auto;
-  left: auto;
-  width: auto;
-  transform: none;
-  z-index: auto;
+  position: fixed;
+  top: 0;
+  left: 50%;
+  width: min(calc(100% - 32px), 1380px);
+  transform: translateX(-50%);
+  z-index: 20;
   align-items: center;
   padding: 20px 24px;
   border: 1px solid var(--line);
@@ -1822,10 +1809,6 @@ button {
 .payeasy-hero {
   grid-template-columns: 1fr;
   gap: 20px;
-}
-
-.portal-fixed-stack .payeasy-hero {
-  box-shadow: 0 12px 28px rgba(26, 26, 26, 0.08);
 }
 
 .payeasy-kpi-grid {
@@ -1984,39 +1967,17 @@ button {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.rayzaa-top-grid,
-.rayzaa-bottom-grid {
+.rayzaa-command-layout {
   display: grid;
   grid-template-columns: minmax(270px, 0.92fr) minmax(0, 1.48fr) minmax(310px, 0.98fr);
   gap: 20px;
   align-items: start;
 }
 
-.rayzaa-top-grid > *,
-.rayzaa-bottom-grid > *,
-.rayzaa-bottom-right {
+.rayzaa-column {
   display: grid;
   gap: 20px;
   min-width: 0;
-}
-
-.rayzaa-top-grid {
-  align-items: stretch;
-}
-
-.rayzaa-top-grid .signal-panel,
-.rayzaa-top-grid .rayzaa-case-summary,
-.rayzaa-top-grid .graph-shell {
-  height: 100%;
-  box-shadow: 0 12px 28px rgba(26, 26, 26, 0.08);
-}
-
-.rayzaa-top-grid .rayzaa-case-summary {
-  overflow: auto;
-}
-
-.rayzaa-top-grid .graph-canvas {
-  min-height: 190px;
 }
 
 .signal-panel,
@@ -2360,8 +2321,7 @@ button {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .rayzaa-top-grid,
-  .rayzaa-bottom-grid {
+  .rayzaa-command-layout {
     grid-template-columns: minmax(250px, 0.9fr) minmax(0, 1.4fr) minmax(290px, 0.95fr);
   }
 }
@@ -2371,21 +2331,13 @@ button {
     padding: 16px;
   }
 
-  .portal-fixed-stack,
-  .rayzaa-fixed-stack {
-    position: static;
-    width: auto;
-    transform: none;
-  }
-
-  .app-shell,
-  .portal-shell {
-    padding-top: 0;
+  .portal-header,
+  .rayzaa-shell-header {
+    width: min(calc(100% - 24px), 1380px);
   }
 
   .rayzaa-shell-header,
-  .rayzaa-top-grid,
-  .rayzaa-bottom-grid {
+  .rayzaa-command-layout {
     grid-template-columns: 1fr;
   }
 
@@ -2408,10 +2360,6 @@ button {
   .evidence-panel,
   .center-panel {
     min-height: auto;
-  }
-
-  .rayzaa-top-grid .graph-canvas {
-    min-height: 300px;
   }
 
   .portal-header,
@@ -2441,6 +2389,19 @@ button {
   .rayzaa-shell-header {
     flex-direction: column;
     gap: 16px;
+  }
+
+  .app-shell,
+  .portal-shell {
+    padding-top: var(--shell-header-offset, 360px);
+  }
+
+  .portal-shell {
+    --shell-header-offset: 288px;
+  }
+
+  .app-shell {
+    --shell-header-offset: 340px;
   }
 
   .portal-actions,

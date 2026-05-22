@@ -188,31 +188,31 @@ export default function PayEasyDashboard() {
           </p>
         </section>
       )}
-      <div className="portal-fixed-stack">
-        <header className="portal-header panel">
-          <div className="portal-brand">
-            <p className="eyebrow">PayEasy</p>
-            <h1>Live Checkout Surface</h1>
-            <p className="portal-copy">
-              Customer-facing checkout proves the real payment trigger. Rayzaa remains the operational intelligence layer behind the handoff.
-            </p>
+      <header className="portal-header panel">
+        <div className="portal-brand">
+          <p className="eyebrow">PayEasy</p>
+          <h1>Live Checkout Surface</h1>
+          <p className="portal-copy">
+            Customer-facing checkout proves the real payment trigger. Rayzaa remains the operational intelligence layer behind the handoff.
+          </p>
+        </div>
+        <div className="portal-actions">
+          <div className={`status-chip ${connection}`}>
+            <span className="status-dot" />
+            {connectionLabel(connection)}
           </div>
-          <div className="portal-actions">
-            <div className={`status-chip ${connection}`}>
-              <span className="status-dot" />
-              {connectionLabel(connection)}
-            </div>
-            <nav className="dashboard-switch">
-              <Link href="/" className="switch-link active">
-                PayEasy
-              </Link>
-              <Link href="/rayzaa" className="switch-link">
-                Rayzaa command
-              </Link>
-            </nav>
-          </div>
-        </header>
+          <nav className="dashboard-switch">
+            <Link href="/" className="switch-link active">
+              PayEasy
+            </Link>
+            <Link href="/rayzaa" className="switch-link">
+              Rayzaa command
+            </Link>
+          </nav>
+        </div>
+      </header>
 
+      <div className="portal-body">
         <section className="panel payeasy-hero">
           <div className="payeasy-hero-copy">
             <p className="eyebrow">Customer Dashboard</p>
@@ -244,9 +244,6 @@ export default function PayEasyDashboard() {
             </div>
           </div>
         </section>
-      </div>
-
-      <div className="portal-body">
 
         <section className="payeasy-main-grid">
           <LivePaymentPanel
