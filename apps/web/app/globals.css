@@ -1006,6 +1006,30 @@ button {
   padding: 18px 18px 0;
 }
 
+.graph-toolbar-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.graph-toolbar-button {
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  background: #fcfaf6;
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-family: var(--font-mono);
+}
+
+.graph-toolbar-button:hover {
+  color: var(--text);
+  border-color: var(--text);
+}
+
 .graph-metric-strip {
   padding: 12px 18px 0;
 }
@@ -1031,7 +1055,7 @@ button {
 }
 
 .graph-canvas {
-  min-height: 420px;
+  min-height: 460px;
   cursor: grab;
   background:
     linear-gradient(rgba(229, 224, 215, 0.72) 1px, transparent 1px),

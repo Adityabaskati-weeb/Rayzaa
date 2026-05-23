@@ -148,9 +148,28 @@ function graphSignature(nodes, edges) {
   });
 }
 
+function fitViewport(cy) {
+  if (!cy || cy.destroyed()) {
+    return;
+  }
+  try {
+    cy.resize();
+    const elements = cy.elements();
+    if (!elements.length) {
+      return;
+    }
+    cy.fit(elements, 52);
+    if (cy.zoom() > 1) {
+      cy.zoom(1);
+      cy.center(elements);
+    }
+  } catch {}
+}
+
 export default function TrustGraph({ elements, trustState, replayLabel }) {
   const containerRef = useRef(null);
   const cyRef = useRef(null);
+  const presetPositionsRef = useRef(new Map());
   const { nodes, edges, signature, preparedElements } = useMemo(() => {
     const normalized = sanitizeElements(elements);
     const positionedNodes = assignPresetPositions(normalized.nodes);
@@ -242,14 +261,15 @@ export default function TrustGraph({ elements, trustState, replayLabel }) {
 
     cyRef.current = cy;
     cy.nodes().grabify();
+    presetPositionsRef.current = new Map(
+      nodes.map((item) => [item.data.id, { x: item.position.x, y: item.position.y }])
+    );
 
     requestAnimationFrame(() => {
       if (disposed || cyRef.current !== cy || cy.destroyed()) {
         return;
       }
-      try {
-        cy.resize();
-      } catch {}
+      fitViewport(cy);
     });
 
     return () => {
@@ -262,7 +282,23 @@ export default function TrustGraph({ elements, trustState, replayLabel }) {
         cy.destroy();
       } catch {}
     };
-  }, [signature]);
+  }, [nodes, preparedElements, signature]);
+
+  function handleFitView() {
+    fitViewport(cyRef.current);
+  }
+
+  function handleResetLayout() {
+    const cy = cyRef.current;
+    if (!cy || cy.destroyed()) {
+      return;
+    }
+    const presetPositions = presetPositionsRef.current;
+    try {
+      cy.nodes().positions((node) => presetPositions.get(node.id()) || node.position());
+      fitViewport(cy);
+    } catch {}
+  }
 
   return (
     <div className="graph-shell">
@@ -271,8 +307,16 @@ export default function TrustGraph({ elements, trustState, replayLabel }) {
           <p className="eyebrow">Trust Memory Graph</p>
           <h3>{replayLabel || "Live relationship topology"}</h3>
         </div>
-        <div className={`state-pill state-${String(trustState || "Healthy").toLowerCase()}`}>
-          {trustState || "Healthy"}
+        <div className="graph-toolbar-actions">
+          <button type="button" className="graph-toolbar-button" onClick={handleFitView}>
+            Fit view
+          </button>
+          <button type="button" className="graph-toolbar-button" onClick={handleResetLayout}>
+            Reset layout
+          </button>
+          <div className={`state-pill state-${String(trustState || "Healthy").toLowerCase()}`}>
+            {trustState || "Healthy"}
+          </div>
         </div>
       </div>
       <p className="graph-interaction-note">Drag nodes to inspect local pressure. Scroll to zoom and drag the canvas to pan.</p>
