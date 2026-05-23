@@ -1010,6 +1010,16 @@ button {
   padding: 12px 18px 0;
 }
 
+.graph-interaction-note {
+  margin: 0;
+  padding: 10px 18px 0;
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-family: var(--font-mono);
+}
+
 .graph-metric-card {
   flex: 1;
   display: grid;
@@ -1022,6 +1032,7 @@ button {
 
 .graph-canvas {
   min-height: 420px;
+  cursor: grab;
   background:
     linear-gradient(rgba(229, 224, 215, 0.72) 1px, transparent 1px),
     linear-gradient(90deg, rgba(229, 224, 215, 0.72) 1px, transparent 1px);

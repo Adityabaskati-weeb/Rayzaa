@@ -192,10 +192,12 @@ export default function TrustGraph({ elements, trustState, replayLabel }) {
       elements: preparedElements,
       layout: { name: "preset", fit: false },
       boxSelectionEnabled: false,
-      autoungrabify: true,
-      autounselectify: true,
-      userZoomingEnabled: false,
-      userPanningEnabled: false,
+      autoungrabify: false,
+      autounselectify: false,
+      userZoomingEnabled: true,
+      userPanningEnabled: true,
+      minZoom: 0.8,
+      maxZoom: 1.8,
       style: [
         {
           selector: "node",
@@ -239,6 +241,7 @@ export default function TrustGraph({ elements, trustState, replayLabel }) {
     });
 
     cyRef.current = cy;
+    cy.nodes().grabify();
 
     requestAnimationFrame(() => {
       if (disposed || cyRef.current !== cy || cy.destroyed()) {
@@ -272,6 +275,7 @@ export default function TrustGraph({ elements, trustState, replayLabel }) {
           {trustState || "Healthy"}
         </div>
       </div>
+      <p className="graph-interaction-note">Drag nodes to inspect local pressure. Scroll to zoom and drag the canvas to pan.</p>
       <div className="graph-metric-strip">
         <div className="graph-metric-card">
           <span>Focus</span>
@@ -288,7 +292,7 @@ export default function TrustGraph({ elements, trustState, replayLabel }) {
           <strong>{Math.round(maxAccountRisk)} max account risk</strong>
         </div>
       </div>
-      <div ref={containerRef} className="graph-canvas" style={{ pointerEvents: "none" }} />
+      <div ref={containerRef} className="graph-canvas" />
       <div className="graph-legend">
         <span><i className="legend-dot legend-account" />Account {nodeCounts.account || 0}</span>
         <span><i className="legend-dot legend-device" />Device {nodeCounts.device || 0}</span>
