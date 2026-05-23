@@ -1665,7 +1665,7 @@ button {
 }
 
 .app-shell {
-  --shell-header-offset: 276px;
+  --shell-header-offset: 238px;
 }
 
 .panel {
@@ -1681,7 +1681,7 @@ button {
   transform: translateX(-50%);
   z-index: 20;
   align-items: center;
-  padding: 20px 24px;
+  padding: 14px 20px;
   border: 1px solid var(--line);
   background: #ffffff;
   box-shadow: 0 12px 28px rgba(26, 26, 26, 0.08);
@@ -1690,23 +1690,23 @@ button {
 .app-shell-body,
 .portal-body {
   display: grid;
-  gap: 24px;
+  gap: 18px;
 }
 
 .portal-brand h1,
 .rayzaa-shell-brand h1 {
-  font-size: clamp(2rem, 3vw, 2.8rem);
+  font-size: clamp(1.8rem, 2.6vw, 2.5rem);
   line-height: 1;
 }
 
 .portal-actions,
 .rayzaa-shell-actions {
-  gap: 14px;
+  gap: 10px;
 }
 
 .rayzaa-shell-actions {
   display: grid;
-  min-width: 320px;
+  min-width: 300px;
   justify-items: end;
 }
 
@@ -1764,21 +1764,21 @@ button {
 
 .rayzaa-shell-header {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(320px, 380px);
-  gap: 24px;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
+  gap: 18px;
 }
 
 .rayzaa-shell-brand {
   display: grid;
-  gap: 10px;
+  gap: 6px;
 }
 
 .rayzaa-shell-copy,
 .rayzaa-status-copy span {
   margin: 0;
-  max-width: 720px;
+  max-width: 620px;
   color: var(--muted);
-  line-height: 1.55;
+  line-height: 1.45;
 }
 
 .rayzaa-header-controls {
@@ -1791,7 +1791,7 @@ button {
 
 .rayzaa-status-copy {
   display: grid;
-  gap: 6px;
+  gap: 4px;
   min-width: 0;
   justify-items: end;
   text-align: right;
@@ -1980,34 +1980,34 @@ button {
 
 .rayzaa-workspace-shell {
   display: grid;
-  gap: 20px;
+  gap: 16px;
 }
 
 .rayzaa-analyst-layout {
   display: grid;
-  grid-template-columns: 260px minmax(0, 1fr);
-  gap: 20px;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 16px;
   align-items: start;
 }
 
 .rayzaa-sidebar {
   position: sticky;
-  top: 16px;
+  top: 12px;
   display: grid;
-  gap: 18px;
-  padding: 20px 18px;
-  background: #fdfbf7;
+  gap: 14px;
+  padding: 14px 14px 12px;
+  background: #fcfaf6;
 }
 
 .rayzaa-sidebar-head {
   display: grid;
-  gap: 8px;
+  gap: 6px;
 }
 
 .rayzaa-sidebar-head h2 {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: 26px;
+  font-size: 22px;
   font-weight: 500;
   letter-spacing: -0.04em;
 }
@@ -2015,29 +2015,31 @@ button {
 .rayzaa-sidebar-copy {
   margin: 0;
   color: var(--muted);
-  line-height: 1.5;
+  font-size: 13px;
+  line-height: 1.45;
 }
 
 .rayzaa-sidebar-nav {
   display: grid;
-  gap: 8px;
+  gap: 4px;
 }
 
 .rayzaa-sidebar-nav button {
   display: grid;
-  gap: 6px;
+  gap: 4px;
   width: 100%;
-  padding: 14px 16px;
-  border: 1px solid var(--line);
-  background: #ffffff;
+  padding: 10px 12px;
+  border: 1px solid transparent;
+  border-left: 2px solid var(--line);
+  background: transparent;
   color: var(--text);
   text-align: left;
-  transition: border-color 180ms ease, background 180ms ease, transform 180ms ease;
+  transition: border-color 180ms ease, background 180ms ease, color 180ms ease;
 }
 
 .rayzaa-sidebar-nav button strong {
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -2045,28 +2047,39 @@ button {
 
 .rayzaa-sidebar-nav button span {
   color: var(--muted);
-  font-size: 13px;
-  line-height: 1.45;
+  font-size: 12px;
+  line-height: 1.4;
 }
 
 .rayzaa-sidebar-nav button:hover {
-  border-color: var(--text);
-  background: #fcfaf6;
+  border-left-color: var(--text);
+  background: #f7f2ea;
 }
 
 .rayzaa-sidebar-nav button.is-active {
+  border-color: var(--line);
   border-left: 3px solid var(--text);
-  background: #fcfaf6;
+  background: #ffffff;
 }
 
 .rayzaa-sidebar-actions {
   display: grid;
-  gap: 10px;
+  gap: 6px;
+  padding-top: 4px;
 }
 
 .rayzaa-sidebar-actions .ghost-button,
 .rayzaa-sidebar-actions .portal-link-button {
-  justify-content: center;
+  justify-content: flex-start;
+  min-height: 34px;
+  padding: 6px 0;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .rayzaa-workspace-main,
@@ -2089,6 +2102,136 @@ button {
 
 .rayzaa-workspace-grid .rayzaa-queue-surface {
   grid-column: 1 / -1;
+}
+
+.rayzaa-overview-stack {
+  display: grid;
+  gap: 16px;
+}
+
+.rayzaa-overview-shell,
+.rayzaa-overview-flow-panel {
+  display: grid;
+  gap: 0;
+}
+
+.rayzaa-overview-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.18fr) minmax(290px, 0.82fr);
+  gap: 18px;
+  padding: 18px;
+}
+
+.rayzaa-overview-focus {
+  display: grid;
+  gap: 14px;
+  padding: 22px 24px;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--line);
+  background: #ffffff;
+}
+
+.rayzaa-overview-focus.state-healthy {
+  border-left-color: var(--state-healthy);
+}
+
+.rayzaa-overview-focus.state-watch {
+  border-left-color: var(--state-watch);
+}
+
+.rayzaa-overview-focus.state-fractured {
+  border-left-color: var(--state-fractured);
+}
+
+.rayzaa-overview-focus.state-escalated {
+  border-left-color: var(--state-escalated);
+}
+
+.rayzaa-overview-focus-head,
+.rayzaa-overview-focus-meta {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.rayzaa-overview-focus-head h3 {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: clamp(1.8rem, 2.2vw, 2.3rem);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+}
+
+.rayzaa-overview-focus-meta {
+  align-items: end;
+  font-family: var(--font-mono);
+}
+
+.rayzaa-overview-focus-meta span {
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.rayzaa-overview-focus-meta strong {
+  font-size: 18px;
+}
+
+.rayzaa-overview-focus-copy {
+  margin: 0;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.rayzaa-overview-focus-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+}
+
+.rayzaa-overview-focus-tags span {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.rayzaa-overview-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  align-content: start;
+}
+
+.rayzaa-overview-card {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  background: #fcfaf6;
+}
+
+.rayzaa-overview-card span {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.rayzaa-overview-card strong {
+  font-size: 22px;
+  line-height: 1.12;
+}
+
+.rayzaa-overview-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.45;
 }
 
 .rayzaa-section-panel {
@@ -2185,22 +2328,59 @@ button {
 
 .rayzaa-case-summary {
   display: grid;
-  gap: 18px;
+  gap: 16px;
+  padding: 24px 28px;
 }
 
 .rayzaa-case-summary-head {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: flex-start;
-  justify-content: space-between;
   gap: 16px;
 }
 
 .rayzaa-case-summary-head h2 {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: clamp(1.7rem, 2vw, 2.2rem);
+  font-size: clamp(1.9rem, 2.25vw, 2.45rem);
   font-weight: 500;
   letter-spacing: -0.04em;
+}
+
+.rayzaa-case-summary-emphasis {
+  display: grid;
+  gap: 10px;
+  justify-items: end;
+}
+
+.rayzaa-case-summary-signal {
+  display: grid;
+  gap: 4px;
+  min-width: 190px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  background: #fcfaf6;
+  text-align: right;
+}
+
+.rayzaa-case-summary-signal span {
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.rayzaa-case-summary-signal strong {
+  font-family: var(--font-mono);
+  font-size: 20px;
+}
+
+.rayzaa-case-summary-signal p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
 }
 
 .rayzaa-case-meta {
@@ -2383,6 +2563,10 @@ button {
   padding: 0 18px 18px;
 }
 
+.rayzaa-demo-flow-compact {
+  padding-top: 18px;
+}
+
 .rayzaa-demo-flow-head {
   display: grid;
   gap: 6px;
@@ -2391,6 +2575,10 @@ button {
 .rayzaa-demo-step-list {
   display: grid;
   gap: 10px;
+}
+
+.rayzaa-demo-step-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .rayzaa-demo-step {
@@ -2571,6 +2759,10 @@ button {
   .rayzaa-workspace-grid {
     grid-template-columns: minmax(0, 1fr);
   }
+
+  .rayzaa-overview-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 @media (max-width: 1180px) {
@@ -2600,7 +2792,9 @@ button {
   .rayzaa-ops-grid,
   .rayzaa-queue-metrics,
   .case-metric-grid,
-  .rayzaa-case-flags {
+  .rayzaa-case-flags,
+  .rayzaa-overview-summary-grid,
+  .rayzaa-demo-step-grid {
     grid-template-columns: 1fr;
   }
 
@@ -2616,11 +2810,19 @@ button {
     flex-direction: column;
   }
 
+  .rayzaa-case-summary-head {
+    grid-template-columns: 1fr;
+  }
+
   .rayzaa-sidebar {
     position: static;
   }
 
   .rayzaa-workspace-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .rayzaa-overview-body {
     grid-template-columns: 1fr;
   }
 
@@ -2657,7 +2859,7 @@ button {
   }
 
   .app-shell {
-    --shell-header-offset: 340px;
+    --shell-header-offset: 296px;
   }
 
   .portal-actions,
@@ -2680,6 +2882,14 @@ button {
 
   .rayzaa-sidebar-nav {
     grid-template-columns: 1fr;
+  }
+
+  .rayzaa-case-summary-emphasis {
+    justify-items: start;
+  }
+
+  .rayzaa-case-summary-signal {
+    text-align: left;
   }
 
   .switch-link {

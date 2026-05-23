@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { getRuntimeConfig } from "../lib/runtime-config";
 import CaseTimeline from "./command-center/case-timeline";
 import EvidenceLensPanel from "./command-center/evidence-lens-panel";
-import { compactNumber, DEFAULT_POLICY, formatTimestamp } from "./command-center/formatters";
+import { compactNumber, currency, DEFAULT_POLICY, formatTimestamp } from "./command-center/formatters";
 import QueuePanel from "./command-center/queue-panel";
 import ReplayPanel from "./command-center/replay-panel";
 import SignalRailPanel from "./command-center/signal-rail-panel";
@@ -581,6 +581,46 @@ export default function CommandCenter() {
       tone: !focusCase ? "pending" : escalationActive ? "alert" : "neutral"
     }
   ];
+  const overviewLeadCase =
+    latestLiveSignal ||
+    (focusCase?.source === "live" && !focusCaseIsBaseline
+      ? {
+          accountId: focusCase?.accountId || focusCase?.title || focusCase?.caseId,
+          amount: focusCase?.amount || 0,
+          timestamp: focusCase?.updatedAt,
+          paymentRail: focusCase?.paymentRail || "case context",
+          merchantId: focusCase?.merchantId || "merchant pending",
+          counterpartyId: focusCase?.counterpartyId || focusCase?.lastTransactionId,
+          scenarioNote: focusCase?.summary,
+          transactionId: focusCase?.lastTransactionId,
+          fusedScore: focusCase?.fusedScore || 0,
+          trustState: focusCase?.trustState || "Healthy",
+          caseId: focusCase?.caseId
+        }
+      : null);
+  const overviewLeadState = overviewLeadCase?.trustState || trustState || "Healthy";
+  const overviewCards = [
+    {
+      label: "Queue posture",
+      value: queue.length ? `${queue.length} active` : "Queue clear",
+      meta: `${queueCounts.review} review | ${queueCounts.escalated} escalated`
+    },
+    {
+      label: "Latest alert",
+      value: latestAlert?.status ? titleCase(latestAlert.status) : "Pending",
+      meta: latestAlert ? `${titleCase(latestAlert.trustState)} | ${compactNumber(latestAlert.fusedScore)} fused` : "Awaiting alert threshold"
+    },
+    {
+      label: "Replay readiness",
+      value: replayAvailableForNarrative ? replayModeDisplay : "Locked",
+      meta: replayAvailableForNarrative ? `${replayContext.totalSteps} steps ready` : "First non-seed live payment required"
+    },
+    {
+      label: "Case status",
+      value: !focusCase ? "Pending" : isFlagged ? "Flagged" : "Clear",
+      meta: !focusCase ? "Awaiting case" : `${needsReview ? "Needs review" : "Approved"} | ${escalationActive ? "Escalated" : "Standby"}`
+    }
+  ];
   const liveViewActive = !replayOverlayActive && replayContext.mode !== "replay-ready";
   const replayViewActive = !liveViewActive;
 
@@ -796,16 +836,89 @@ export default function CommandCenter() {
       </div>
     </section>
   );
+  const overviewSurface = (
+    <div className="rayzaa-overview-stack">
+      <section className="panel rayzaa-overview-shell">
+        <div className="panel-header">
+          <div>
+            <p className="eyebrow">Overview</p>
+            <h2>Live command snapshot</h2>
+          </div>
+          <button
+            type="button"
+            className="ghost-button"
+            onClick={openLatestLiveCase}
+            disabled={!overviewLeadCase?.caseId && !(focusCase?.caseId && focusCase?.source === "live" && !focusCaseIsBaseline)}
+          >
+            Open evidence lens
+          </button>
+        </div>
+        <div className="rayzaa-overview-body">
+          <article className={`rayzaa-overview-focus state-${String(overviewLeadState).toLowerCase()}`}>
+            <div className="rayzaa-overview-focus-head">
+              <div>
+                <p className="eyebrow">{overviewLeadCase ? "Latest live case" : "Live intake"}</p>
+                <h3>{overviewLeadCase?.accountId || focusCase?.title || "Awaiting live payment"}</h3>
+              </div>
+              <TrustStatePill value={overviewLeadState} />
+            </div>
+            <div className="rayzaa-overview-focus-meta">
+              <span>{overviewLeadCase?.timestamp ? formatTimestamp(overviewLeadCase.timestamp) : "Pending"}</span>
+              <strong>{overviewLeadCase ? currency(overviewLeadCase.amount) : "Awaiting amount"}</strong>
+            </div>
+            <p className="rayzaa-overview-focus-copy">
+              {overviewLeadCase?.scenarioNote ||
+                focusCase?.summary ||
+                "Once PayEasy sends a live payment, Rayzaa pins the case here before analysts move into evidence, queue, and replay."}
+            </p>
+            <div className="rayzaa-overview-focus-tags">
+              <span>{String(overviewLeadCase?.paymentRail || "Live context").replaceAll("_", " ")}</span>
+              <span>{overviewLeadCase?.merchantId || "Merchant pending"}</span>
+              <span>{overviewLeadCase?.transactionId || "Transaction pending"}</span>
+              <span>{compactNumber(overviewLeadCase?.fusedScore || focusCase?.fusedScore || 0)} fused</span>
+            </div>
+          </article>
+          <div className="rayzaa-overview-summary-grid">
+            {overviewCards.map((item) => (
+              <article key={item.label} className="rayzaa-overview-card">
+                <span>{item.label}</span>
+                <strong>{item.value}</strong>
+                <p>{item.meta}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="panel rayzaa-overview-flow-panel">
+        <div className="panel-header">
+          <div>
+            <p className="eyebrow">Deterministic Operational Flow</p>
+            <h2>Live proof sequence</h2>
+          </div>
+        </div>
+        <div className="rayzaa-demo-flow rayzaa-demo-flow-compact">
+          <div className="rayzaa-demo-step-list rayzaa-demo-step-grid">
+            {demoSequence.map((step) => (
+              <div key={step.id} className={`rayzaa-demo-step rayzaa-demo-${step.status}`}>
+                <span className="rayzaa-demo-index">{step.step}</span>
+                <div>
+                  <strong>{step.label}</strong>
+                  <p>{step.meta}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <SignalRailPanel signalRail={state?.signalRail || []} onSelectCase={selectCaseFromSignal} />
+    </div>
+  );
 
   let workspaceContent = null;
   if (activeSection === "overview") {
-    workspaceContent = (
-      <div className="rayzaa-workspace-grid">
-        <SignalRailPanel signalRail={state?.signalRail || []} onSelectCase={selectCaseFromSignal} />
-        {operationsSurface}
-        {queueSurface}
-      </div>
-    );
+    workspaceContent = overviewSurface;
   } else if (activeSection === "evidence") {
     workspaceContent = (
       <EvidenceLensPanel
@@ -915,7 +1028,7 @@ export default function CommandCenter() {
             <h1>Trust Operations Command</h1>
           </div>
           <p className="rayzaa-shell-copy">
-            Analyst-facing trust investigation surface for live intake, queue triage, typed evidence, and replay chronology.
+            Analyst-facing investigation workspace for live intake, evidence review, queue decisions, and replay chronology.
           </p>
         </div>
         <div className="rayzaa-shell-actions">
@@ -969,7 +1082,16 @@ export default function CommandCenter() {
                   <span>{focusCase?.lastTransactionId || "Awaiting persisted transaction"}</span>
                 </div>
               </div>
-              <TrustStatePill value={trustState} />
+              <div className="rayzaa-case-summary-emphasis">
+                <TrustStatePill value={trustState} />
+                <div className="rayzaa-case-summary-signal">
+                  <span>Current trust</span>
+                  <strong>{trustState}</strong>
+                  <p>
+                    {titleCase(caseDecision)} | {compactNumber(Number(scores.fused || focusCase?.fusedScore || 0))} fused
+                  </p>
+                </div>
+              </div>
             </div>
             <p className="rayzaa-case-summary-copy">
               {focusCase?.summary ||
@@ -1021,7 +1143,7 @@ export default function CommandCenter() {
                 <p className="eyebrow">Navigation</p>
                 <h2>Analyst workspace</h2>
                 <p className="rayzaa-sidebar-copy">
-                  Switch the active surface without losing the pinned live case, trust summary, or visual language.
+                  Switch surfaces without losing the pinned case context.
                 </p>
               </div>
               <nav className="rayzaa-sidebar-nav" aria-label="Rayzaa workspace sections">
@@ -1047,7 +1169,7 @@ export default function CommandCenter() {
                   Open latest live case
                 </button>
                 <Link href="/payeasy" className="ghost-button portal-link-button">
-                  Go to PayEasy
+                  Back to PayEasy
                 </Link>
               </div>
             </aside>
