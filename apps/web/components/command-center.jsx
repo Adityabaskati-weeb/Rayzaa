@@ -581,6 +581,27 @@ export default function CommandCenter() {
       tone: !focusCase ? "pending" : escalationActive ? "alert" : "neutral"
     }
   ];
+  const summaryBandItems = [
+    ...operationalFlags,
+    {
+      label: "Trust score",
+      value: `${compactNumber(Number(scores.fused || focusCase?.fusedScore || 0))}%`,
+      meta: "Fused score",
+      tone: "metric"
+    },
+    {
+      label: "Evidence",
+      value: String(evidenceSignalCount),
+      meta: "Typed signals",
+      tone: "metric"
+    },
+    {
+      label: "Timeline",
+      value: String(caseTimelineCount),
+      meta: "Persisted events",
+      tone: "metric"
+    }
+  ];
   const overviewLeadCase =
     latestLiveSignal ||
     (focusCase?.source === "live" && !focusCaseIsBaseline
@@ -602,8 +623,8 @@ export default function CommandCenter() {
   const overviewCards = [
     {
       label: "Queue posture",
-      value: queue.length ? `${queue.length} active` : "Queue clear",
-      meta: `${queueCounts.review} review | ${queueCounts.escalated} escalated`
+      value: queue.length ? String(queue.length) : "0",
+      meta: queue.length ? "Active cases" : "Queue clear"
     },
     {
       label: "Latest alert",
@@ -612,13 +633,25 @@ export default function CommandCenter() {
     },
     {
       label: "Replay readiness",
-      value: replayAvailableForNarrative ? replayModeDisplay : "Locked",
-      meta: replayAvailableForNarrative ? `${replayContext.totalSteps} steps ready` : "First non-seed live payment required"
+      value: replayAvailableForNarrative ? `${replayContext.totalSteps}` : "0",
+      meta: replayAvailableForNarrative ? replayModeDisplay : "Locked until live payment"
     },
     {
       label: "Case status",
       value: !focusCase ? "Pending" : isFlagged ? "Flagged" : "Clear",
       meta: !focusCase ? "Awaiting case" : `${needsReview ? "Needs review" : "Approved"} | ${escalationActive ? "Escalated" : "Standby"}`
+    }
+  ];
+  const overviewInsightCards = [
+    {
+      label: "Trust posture",
+      value: !focusCase ? "Awaiting" : isFlagged ? "Flagged" : "Clear",
+      meta: !focusCase ? "No case pinned yet" : `${titleCase(trustState)} | ${titleCase(caseDecision)}`
+    },
+    {
+      label: "Analyst path",
+      value: needsReview ? "Review" : "Monitor",
+      meta: escalationActive ? "Escalation active" : replayAvailableForNarrative ? "Replay ready" : "Replay locked"
     }
   ];
   const liveViewActive = !replayOverlayActive && replayContext.mode !== "replay-ready";
@@ -854,65 +887,85 @@ export default function CommandCenter() {
           </button>
         </div>
         <div className="rayzaa-overview-body">
-          <article className={`rayzaa-overview-focus state-${String(overviewLeadState).toLowerCase()}`}>
-            <div className="rayzaa-overview-focus-head">
-              <div>
-                <p className="eyebrow">{overviewLeadCase ? "Latest live case" : "Live intake"}</p>
-                <h3>{overviewLeadCase?.accountId || focusCase?.title || "Awaiting live payment"}</h3>
-              </div>
-              <TrustStatePill value={overviewLeadState} />
-            </div>
-            <div className="rayzaa-overview-focus-meta">
-              <span>{overviewLeadCase?.timestamp ? formatTimestamp(overviewLeadCase.timestamp) : "Pending"}</span>
-              <strong>{overviewLeadCase ? currency(overviewLeadCase.amount) : "Awaiting amount"}</strong>
-            </div>
-            <p className="rayzaa-overview-focus-copy">
-              {overviewLeadCase?.scenarioNote ||
-                focusCase?.summary ||
-                "Once PayEasy sends a live payment, Rayzaa pins the case here before analysts move into evidence, queue, and replay."}
-            </p>
-            <div className="rayzaa-overview-focus-tags">
-              <span>{String(overviewLeadCase?.paymentRail || "Live context").replaceAll("_", " ")}</span>
-              <span>{overviewLeadCase?.merchantId || "Merchant pending"}</span>
-              <span>{overviewLeadCase?.transactionId || "Transaction pending"}</span>
-              <span>{compactNumber(overviewLeadCase?.fusedScore || focusCase?.fusedScore || 0)} fused</span>
-            </div>
-          </article>
-          <div className="rayzaa-overview-summary-grid">
-            {overviewCards.map((item) => (
-              <article key={item.label} className="rayzaa-overview-card">
-                <span>{item.label}</span>
-                <strong>{item.value}</strong>
-                <p>{item.meta}</p>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="panel rayzaa-overview-flow-panel">
-        <div className="panel-header">
-          <div>
-            <p className="eyebrow">Deterministic Operational Flow</p>
-            <h2>Live proof sequence</h2>
-          </div>
-        </div>
-        <div className="rayzaa-demo-flow rayzaa-demo-flow-compact">
-          <div className="rayzaa-demo-step-list rayzaa-demo-step-grid">
-            {demoSequence.map((step) => (
-              <div key={step.id} className={`rayzaa-demo-step rayzaa-demo-${step.status}`}>
-                <span className="rayzaa-demo-index">{step.step}</span>
+          <div className="rayzaa-overview-primary">
+            <article className={`rayzaa-overview-focus state-${String(overviewLeadState).toLowerCase()}`}>
+              <div className="rayzaa-overview-focus-head">
                 <div>
-                  <strong>{step.label}</strong>
-                  <p>{step.meta}</p>
+                  <p className="eyebrow">{overviewLeadCase ? "Latest live case" : "Live intake"}</p>
+                  <h3>{overviewLeadCase?.accountId || focusCase?.title || "Awaiting live payment"}</h3>
                 </div>
+                <TrustStatePill value={overviewLeadState} />
               </div>
-            ))}
+              <div className="rayzaa-overview-focus-meta">
+                <span>{overviewLeadCase?.timestamp ? formatTimestamp(overviewLeadCase.timestamp) : "Pending"}</span>
+                <strong>{overviewLeadCase ? currency(overviewLeadCase.amount) : "Awaiting amount"}</strong>
+              </div>
+              <p className="rayzaa-overview-focus-copy">
+                {overviewLeadCase?.scenarioNote ||
+                  focusCase?.summary ||
+                  "Once PayEasy sends a live payment, Rayzaa pins the case here before analysts move into evidence, queue, and replay."}
+              </p>
+              <div className="rayzaa-overview-focus-tags">
+                <span>{String(overviewLeadCase?.paymentRail || "Live context").replaceAll("_", " ")}</span>
+                <span>{overviewLeadCase?.merchantId || "Merchant pending"}</span>
+                <span>{overviewLeadCase?.transactionId || "Transaction pending"}</span>
+                <span>{compactNumber(overviewLeadCase?.fusedScore || focusCase?.fusedScore || 0)} fused</span>
+              </div>
+            </article>
+            <div className="rayzaa-overview-band">
+              {overviewCards.map((item) => (
+                <article key={item.label} className="rayzaa-overview-band-item">
+                  <span>{item.label}</span>
+                  <strong>{item.value}</strong>
+                  <p>{item.meta}</p>
+                </article>
+              ))}
+            </div>
           </div>
+          <aside className="rayzaa-overview-insight">
+            <div className="rayzaa-overview-insight-head">
+              <span className="context-label">Operational posture</span>
+              <strong>{statusHeadline}</strong>
+              <p>{statusTitle}</p>
+            </div>
+            <div className="rayzaa-overview-insight-grid">
+              {overviewInsightCards.map((item) => (
+                <article key={item.label} className="rayzaa-overview-insight-card">
+                  <span>{item.label}</span>
+                  <strong>{item.value}</strong>
+                  <p>{item.meta}</p>
+                </article>
+              ))}
+            </div>
+          </aside>
         </div>
       </section>
 
-      <SignalRailPanel signalRail={state?.signalRail || []} onSelectCase={selectCaseFromSignal} />
+      <div className="rayzaa-overview-lower">
+        <section className="panel rayzaa-overview-flow-panel">
+          <div className="panel-header">
+            <div>
+              <p className="eyebrow">Deterministic Operational Flow</p>
+              <h2>Live proof sequence</h2>
+            </div>
+          </div>
+          <div className="rayzaa-demo-flow rayzaa-demo-flow-compact">
+            <div className="rayzaa-demo-step-list rayzaa-demo-step-grid">
+              {demoSequence.map((step) => (
+                <div key={step.id} className={`rayzaa-demo-step rayzaa-demo-${step.status}`}>
+                  <span className="rayzaa-demo-index">{step.step}</span>
+                  <div>
+                    <strong>{step.label}</strong>
+                    <p>{step.meta}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <SignalRailPanel signalRail={state?.signalRail || []} onSelectCase={selectCaseFromSignal} />
+      </div>
     </div>
   );
 
@@ -1097,31 +1150,14 @@ export default function CommandCenter() {
               {focusCase?.summary ||
                 "Signal Rail selection or live ingest will pin the investigation context for evidence review, queue action, and replay analysis."}
             </p>
-            <div className="rayzaa-case-flags" aria-label="Operational case status">
-              {operationalFlags.map((item) => (
-                <div key={item.label} className={`rayzaa-case-flag rayzaa-case-flag-${item.tone}`}>
+            <div className="rayzaa-summary-band" aria-label="Operational case status">
+              {summaryBandItems.map((item) => (
+                <div key={item.label} className={`rayzaa-summary-band-item rayzaa-summary-band-${item.tone}`}>
                   <span>{item.label}</span>
                   <strong>{item.value}</strong>
                   <p>{item.meta}</p>
                 </div>
               ))}
-            </div>
-            <div className="rayzaa-case-stat-grid">
-              <div className="rayzaa-case-stat">
-                <span>Trust score</span>
-                <strong>{compactNumber(Number(scores.fused || focusCase?.fusedScore || 0))}%</strong>
-                <p>Fused score for the active investigation.</p>
-              </div>
-              <div className="rayzaa-case-stat">
-                <span>Evidence count</span>
-                <strong>{evidenceSignalCount}</strong>
-                <p>Typed evidence signals above the current threshold.</p>
-              </div>
-              <div className="rayzaa-case-stat">
-                <span>Timeline</span>
-                <strong>{caseTimelineCount}</strong>
-                <p>Persisted chronology events for this case.</p>
-              </div>
             </div>
             <div className="score-band rayzaa-score-band">
               {scoreBars.map((item) => (
@@ -1138,7 +1174,7 @@ export default function CommandCenter() {
             </div>
           </section>
           <div className="rayzaa-analyst-layout">
-            <aside className="panel rayzaa-sidebar">
+            <aside className="rayzaa-sidebar">
               <div className="rayzaa-sidebar-head">
                 <p className="eyebrow">Navigation</p>
                 <h2>Analyst workspace</h2>
