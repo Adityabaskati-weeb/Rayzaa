@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { getRuntimeConfig } from "../lib/runtime-config";
+import CaseTimeline from "./command-center/case-timeline";
 import EvidenceLensPanel from "./command-center/evidence-lens-panel";
 import { compactNumber, DEFAULT_POLICY, formatTimestamp } from "./command-center/formatters";
 import QueuePanel from "./command-center/queue-panel";
@@ -100,8 +101,18 @@ function connectionLabel(connection) {
   return "Connecting";
 }
 
+function titleCase(value) {
+  if (!value) {
+    return "Pending";
+  }
+  return String(value)
+    .replaceAll("_", " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
 export default function CommandCenter() {
   const [state, setState] = useState(null);
+  const [activeSection, setActiveSection] = useState("overview");
   const [activeTab, setActiveTab] = useState("evidence");
   const [selectedCase, setSelectedCase] = useState(null);
   const [manualReplayIndex, setManualReplayIndex] = useState(null);
@@ -128,7 +139,7 @@ export default function CommandCenter() {
   }
 
   async function loadCase(caseId, options = {}) {
-    const { resetReplayIndex = true, activateEvidenceTab = true } = options;
+    const { resetReplayIndex = true, activateEvidenceTab = true, revealSection = false, section = "evidence" } = options;
     const response = await fetch(`${API_BASE}/api/cases/${caseId}`, { cache: "no-store" });
     if (!response.ok) {
       return;
@@ -141,10 +152,16 @@ export default function CommandCenter() {
     if (activateEvidenceTab) {
       setActiveTab("evidence");
     }
+    if (revealSection) {
+      setActiveSection(section);
+    }
   }
 
   function selectCaseFromSignal(item) {
-    loadCase(item.caseId || `case_${String(item.accountId || "").toLowerCase().replaceAll("-", "_")}`);
+    loadCase(item.caseId || `case_${String(item.accountId || "").toLowerCase().replaceAll("-", "_")}`, {
+      revealSection: true,
+      section: "evidence"
+    });
   }
 
   function handlePolicyChange(key, value) {
@@ -188,7 +205,7 @@ export default function CommandCenter() {
     }
     const routeCaseId = new URLSearchParams(window.location.search).get("case");
     if (routeCaseId) {
-      loadCase(routeCaseId).catch(() => {});
+      loadCase(routeCaseId, { revealSection: true, section: "evidence" }).catch(() => {});
     }
   }, []);
 
@@ -534,6 +551,36 @@ export default function CommandCenter() {
     return total + items.length;
   }, 0);
   const caseTimelineCount = Array.isArray(focusCase?.timeline) ? focusCase.timeline.length : 0;
+  const caseStatus = focusCase?.status || "pending";
+  const caseDecision = evidence?.decision || "pending";
+  const isFlagged = Boolean(focusCase && trustState !== "Healthy");
+  const needsReview = Boolean(
+    focusCase &&
+      (trustState !== "Healthy" ||
+        ["review", "escalated"].includes(caseStatus) ||
+        caseDecision !== "approve")
+  );
+  const escalationActive = caseStatus === "escalated";
+  const operationalFlags = [
+    {
+      label: "Flagged",
+      value: !focusCase ? "Pending" : isFlagged ? "Yes" : "No",
+      meta: !focusCase ? "Awaiting case" : titleCase(trustState),
+      tone: !focusCase ? "pending" : isFlagged ? "alert" : "clear"
+    },
+    {
+      label: "Needs review",
+      value: !focusCase ? "Pending" : needsReview ? "Yes" : "No",
+      meta: !focusCase ? "Awaiting case" : titleCase(caseDecision),
+      tone: !focusCase ? "pending" : needsReview ? "attention" : "clear"
+    },
+    {
+      label: "Escalation",
+      value: !focusCase ? "Pending" : escalationActive ? "Active" : "Standby",
+      meta: !focusCase ? "Awaiting case" : titleCase(caseStatus),
+      tone: !focusCase ? "pending" : escalationActive ? "alert" : "neutral"
+    }
+  ];
   const liveViewActive = !replayOverlayActive && replayContext.mode !== "replay-ready";
   const replayViewActive = !liveViewActive;
 
@@ -587,6 +634,9 @@ export default function CommandCenter() {
 
   function activateLiveView() {
     setManualReplayIndex(null);
+    if (activeSection === "replay") {
+      setActiveSection("overview");
+    }
   }
 
   function activateReplayView() {
@@ -598,6 +648,249 @@ export default function CommandCenter() {
       setSelectedCase(null);
     }
     setManualReplayIndex(Math.max(0, liveReplayIndex));
+    setActiveSection("replay");
+  }
+
+  function openLatestLiveCase() {
+    if (latestLiveSignal?.caseId) {
+      loadCase(latestLiveSignal.caseId, { revealSection: true, section: "evidence" }).catch(() => {});
+      return;
+    }
+    if (focusCase?.caseId && focusCase?.source === "live" && !focusCaseIsBaseline) {
+      loadCase(focusCase.caseId, { revealSection: true, section: "evidence" }).catch(() => {});
+    }
+  }
+
+  const workspaceSections = [
+    {
+      id: "overview",
+      label: "Overview",
+      meta: liveNarrativeReady ? statusHeadline : "Awaiting live intake"
+    },
+    {
+      id: "evidence",
+      label: "Evidence Lens",
+      meta: `${evidenceSignalCount} typed signals`
+    },
+    {
+      id: "queue",
+      label: "Queue",
+      meta: queue.length ? `${queue.length} active cases` : "Queue clear"
+    },
+    {
+      id: "timeline",
+      label: "Timeline",
+      meta: `${caseTimelineCount} persisted events`
+    },
+    {
+      id: "graph",
+      label: "Graph",
+      meta: `${graph.nodes?.length || 0} nodes | ${graph.edges?.length || 0} links`
+    },
+    {
+      id: "replay",
+      label: "Trust Replay",
+      meta: replayAvailableForNarrative ? `${replayContext.totalSteps} replay steps` : "Locked until live payment"
+    },
+    {
+      id: "scorecard",
+      label: "Model Scorecard",
+      meta: "Offline benchmark validation"
+    }
+  ];
+
+  const queueSurface = (
+    <section className="panel rayzaa-queue-surface">
+      <div className="panel-header">
+        <div>
+          <p className="eyebrow">Queue Posture</p>
+          <h2>Review and escalation queue</h2>
+        </div>
+      </div>
+      <div className="rayzaa-queue-metrics">
+        <div className="rayzaa-queue-metric">
+          <span>Review required</span>
+          <strong>{queueCounts.review}</strong>
+        </div>
+        <div className="rayzaa-queue-metric">
+          <span>Escalated</span>
+          <strong>{queueCounts.escalated}</strong>
+        </div>
+        <div className="rayzaa-queue-metric">
+          <span>Live trigger</span>
+          <strong>{latestLiveSignal?.transactionId || "Pending"}</strong>
+        </div>
+      </div>
+      <QueuePanel
+        queue={queue}
+        onSelectCase={(caseId) => loadCase(caseId, { revealSection: false, activateEvidenceTab: false })}
+        selectedCaseId={selectedCase?.caseId || ""}
+      />
+    </section>
+  );
+
+  const operationsSurface = (
+    <section className="panel rayzaa-ops-surface">
+      <div className="panel-header">
+        <div>
+          <p className="eyebrow">Operations</p>
+          <h2>Live command context</h2>
+        </div>
+        <Link href="/payeasy" className="ghost-button portal-link-button">
+          Open PayEasy
+        </Link>
+      </div>
+      <div className="rayzaa-ops-grid">
+        {operationsOverview.map((item) => (
+          <div key={item.label} className="rayzaa-ops-card">
+            <span>{item.label}</span>
+            <strong>{item.value}</strong>
+            <p>{item.meta}</p>
+          </div>
+        ))}
+      </div>
+      <div className="rayzaa-demo-flow">
+        <div className="rayzaa-demo-flow-head">
+          <span className="context-label">Deterministic operational flow</span>
+          <p>{demoFlow.locked ? "Replay stays gated behind the first non-seed live payment." : "Live flow is active."}</p>
+        </div>
+        <div className="rayzaa-demo-step-list">
+          {demoSequence.map((step) => (
+            <div key={step.id} className={`rayzaa-demo-step rayzaa-demo-${step.status}`}>
+              <span className="rayzaa-demo-index">{step.step}</span>
+              <div>
+                <strong>{step.label}</strong>
+                <p>{step.meta}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+
+  const scorecardSurface = (
+    <section className="panel rayzaa-scorecard-panel">
+      <div className="panel-header">
+        <div>
+          <p className="eyebrow">Model Validation</p>
+          <h2>Model Scorecard</h2>
+        </div>
+      </div>
+      <div className="rayzaa-scorecard-body">
+        <table className="rayzaa-scorecard-table">
+          <tbody>
+            {MODEL_SCORECARD_ROWS.map((row) => (
+              <tr key={row.label}>
+                <th scope="row">{row.label}</th>
+                <td>{row.value}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <p className="rayzaa-scorecard-note">
+          Offline benchmark validation for the locked runtime artifact. Live payments update case-level scores,
+          evidence, queue state, and replay chronology, not benchmark metrics. Neural anomaly sidecar is roadmap
+          only and is not part of the deployed runtime path yet.
+        </p>
+      </div>
+    </section>
+  );
+
+  let workspaceContent = null;
+  if (activeSection === "overview") {
+    workspaceContent = (
+      <div className="rayzaa-workspace-grid">
+        <SignalRailPanel signalRail={state?.signalRail || []} onSelectCase={selectCaseFromSignal} />
+        {operationsSurface}
+        {queueSurface}
+      </div>
+    );
+  } else if (activeSection === "evidence") {
+    workspaceContent = (
+      <EvidenceLensPanel
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        focusCase={focusCase}
+        trustState={trustState}
+        evidence={evidence}
+        replayContext={replayContext}
+        busyAction={busyAction}
+        onTakeAction={takeAction}
+        queue={queue}
+        onSelectCase={loadCase}
+        selectedCaseId={selectedCase?.caseId || ""}
+        policyDraft={policyDraft}
+        onPolicyChange={handlePolicyChange}
+        onSavePolicy={savePolicy}
+      />
+    );
+  } else if (activeSection === "queue") {
+    workspaceContent = (
+      <div className="rayzaa-workspace-stack">
+        {queueSurface}
+        {operationsSurface}
+      </div>
+    );
+  } else if (activeSection === "timeline") {
+    workspaceContent = (
+      <div className="rayzaa-workspace-stack">
+        <section className="panel rayzaa-section-panel">
+          <div className="panel-header">
+            <div>
+              <p className="eyebrow">Timeline</p>
+              <h2>Chronology and operator trail</h2>
+            </div>
+          </div>
+          <div className="rayzaa-section-body">
+            <CaseTimeline timeline={focusCase?.timeline || []} replayContext={replayContext} />
+          </div>
+        </section>
+        {operationsSurface}
+      </div>
+    );
+  } else if (activeSection === "graph") {
+    workspaceContent = (
+      <div className="rayzaa-workspace-stack">
+        <TrustGraph elements={[...(graph.nodes || []), ...(graph.edges || [])]} trustState={trustState} replayLabel={trustLabel} />
+        {operationsSurface}
+      </div>
+    );
+  } else if (activeSection === "replay") {
+    workspaceContent = (
+      <div className="rayzaa-workspace-stack">
+        <ReplayPanel
+          scenarios={scenarios}
+          currentScenarioId={state?.system?.scenarioId}
+          replaySteps={replaySteps}
+          effectiveReplayIndex={effectiveReplayIndex}
+          replayContext={replayContext}
+          demoFlow={demoFlow}
+          launchingScenario={launchingScenario}
+          onStartScenario={startScenario}
+          onFollowLive={activateLiveView}
+          onReplayIndexChange={setManualReplayIndex}
+        />
+        <section className="panel rayzaa-section-panel">
+          <div className="panel-header">
+            <div>
+              <p className="eyebrow">Replay Timeline</p>
+              <h2>Chronology context</h2>
+            </div>
+          </div>
+          <div className="rayzaa-section-body">
+            <CaseTimeline timeline={focusCase?.timeline || []} replayContext={replayContext} />
+          </div>
+        </section>
+      </div>
+    );
+  } else if (activeSection === "scorecard") {
+    workspaceContent = (
+      <div className="rayzaa-workspace-stack">
+        {scorecardSurface}
+        {operationsSurface}
+      </div>
+    );
   }
 
   return (
@@ -664,35 +957,7 @@ export default function CommandCenter() {
       </header>
 
       <div className="app-shell-body">
-        <section className="rayzaa-command-layout">
-          <aside className="rayzaa-column rayzaa-column-left">
-          <SignalRailPanel signalRail={state?.signalRail || []} onSelectCase={selectCaseFromSignal} />
-          <section className="panel rayzaa-queue-surface">
-            <div className="panel-header">
-              <div>
-                <p className="eyebrow">Queue Posture</p>
-                <h2>Review and escalation queue</h2>
-              </div>
-            </div>
-            <div className="rayzaa-queue-metrics">
-              <div className="rayzaa-queue-metric">
-                <span>Review required</span>
-                <strong>{queueCounts.review}</strong>
-              </div>
-              <div className="rayzaa-queue-metric">
-                <span>Escalated</span>
-                <strong>{queueCounts.escalated}</strong>
-              </div>
-              <div className="rayzaa-queue-metric">
-                <span>Live trigger</span>
-                <strong>{latestLiveSignal?.transactionId || "Pending"}</strong>
-              </div>
-            </div>
-            <QueuePanel queue={queue} onSelectCase={loadCase} selectedCaseId={selectedCase?.caseId || ""} />
-          </section>
-          </aside>
-
-          <section className="rayzaa-column rayzaa-column-center">
+        <section className="rayzaa-workspace-shell">
           <section className="panel rayzaa-case-summary">
             <div className="rayzaa-case-summary-head">
               <div>
@@ -710,6 +975,15 @@ export default function CommandCenter() {
               {focusCase?.summary ||
                 "Signal Rail selection or live ingest will pin the investigation context for evidence review, queue action, and replay analysis."}
             </p>
+            <div className="rayzaa-case-flags" aria-label="Operational case status">
+              {operationalFlags.map((item) => (
+                <div key={item.label} className={`rayzaa-case-flag rayzaa-case-flag-${item.tone}`}>
+                  <span>{item.label}</span>
+                  <strong>{item.value}</strong>
+                  <p>{item.meta}</p>
+                </div>
+              ))}
+            </div>
             <div className="rayzaa-case-stat-grid">
               <div className="rayzaa-case-stat">
                 <span>Trust score</span>
@@ -741,105 +1015,46 @@ export default function CommandCenter() {
               ))}
             </div>
           </section>
-
-          <EvidenceLensPanel
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-            focusCase={focusCase}
-            trustState={trustState}
-            evidence={evidence}
-            replayContext={replayContext}
-            busyAction={busyAction}
-            onTakeAction={takeAction}
-            queue={queue}
-            onSelectCase={loadCase}
-            selectedCaseId={selectedCase?.caseId || ""}
-            policyDraft={policyDraft}
-            onPolicyChange={handlePolicyChange}
-            onSavePolicy={savePolicy}
-          />
-          </section>
-
-          <aside className="rayzaa-column rayzaa-column-right">
-          <TrustGraph elements={[...(graph.nodes || []), ...(graph.edges || [])]} trustState={trustState} replayLabel={trustLabel} />
-
-          <ReplayPanel
-            scenarios={scenarios}
-            currentScenarioId={state?.system?.scenarioId}
-            replaySteps={replaySteps}
-            effectiveReplayIndex={effectiveReplayIndex}
-            replayContext={replayContext}
-            demoFlow={demoFlow}
-            launchingScenario={launchingScenario}
-            onStartScenario={startScenario}
-            onFollowLive={activateLiveView}
-            onReplayIndexChange={setManualReplayIndex}
-          />
-
-          <section className="panel rayzaa-ops-surface">
-            <div className="panel-header">
-              <div>
-                <p className="eyebrow">Operations</p>
-                <h2>Live command context</h2>
+          <div className="rayzaa-analyst-layout">
+            <aside className="panel rayzaa-sidebar">
+              <div className="rayzaa-sidebar-head">
+                <p className="eyebrow">Navigation</p>
+                <h2>Analyst workspace</h2>
+                <p className="rayzaa-sidebar-copy">
+                  Switch the active surface without losing the pinned live case, trust summary, or visual language.
+                </p>
               </div>
-              <Link href="/payeasy" className="ghost-button portal-link-button">
-                Open PayEasy
-              </Link>
-            </div>
-            <div className="rayzaa-ops-grid">
-              {operationsOverview.map((item) => (
-                <div key={item.label} className="rayzaa-ops-card">
-                  <span>{item.label}</span>
-                  <strong>{item.value}</strong>
-                  <p>{item.meta}</p>
-                </div>
-              ))}
-            </div>
-            <div className="rayzaa-demo-flow">
-              <div className="rayzaa-demo-flow-head">
-                <span className="context-label">Deterministic operational flow</span>
-                <p>{demoFlow.locked ? "Replay stays gated behind the first non-seed live payment." : "Live flow is active."}</p>
-              </div>
-              <div className="rayzaa-demo-step-list">
-                {demoSequence.map((step) => (
-                  <div key={step.id} className={`rayzaa-demo-step rayzaa-demo-${step.status}`}>
-                    <span className="rayzaa-demo-index">{step.step}</span>
-                    <div>
-                      <strong>{step.label}</strong>
-                      <p>{step.meta}</p>
-                    </div>
-                  </div>
+              <nav className="rayzaa-sidebar-nav" aria-label="Rayzaa workspace sections">
+                {workspaceSections.map((section) => (
+                  <button
+                    key={section.id}
+                    type="button"
+                    className={section.id === activeSection ? "is-active" : ""}
+                    onClick={() => setActiveSection(section.id)}
+                  >
+                    <strong>{section.label}</strong>
+                    <span>{section.meta}</span>
+                  </button>
                 ))}
+              </nav>
+              <div className="rayzaa-sidebar-actions">
+                <button
+                  type="button"
+                  className="ghost-button"
+                  onClick={openLatestLiveCase}
+                  disabled={!latestLiveSignal?.caseId && !(focusCase?.caseId && focusCase?.source === "live" && !focusCaseIsBaseline)}
+                >
+                  Open latest live case
+                </button>
+                <Link href="/payeasy" className="ghost-button portal-link-button">
+                  Go to PayEasy
+                </Link>
               </div>
-            </div>
-          </section>
-
-          <section className="panel rayzaa-scorecard-panel">
-            <div className="panel-header">
-              <div>
-                <p className="eyebrow">Model Validation</p>
-                <h2>Model Scorecard</h2>
-              </div>
-            </div>
-            <div className="rayzaa-scorecard-body">
-              <table className="rayzaa-scorecard-table">
-                <tbody>
-                  {MODEL_SCORECARD_ROWS.map((row) => (
-                    <tr key={row.label}>
-                      <th scope="row">{row.label}</th>
-                      <td>{row.value}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              <p className="rayzaa-scorecard-note">
-                Offline benchmark validation for the locked runtime artifact. Live payments update case-level scores,
-                evidence, queue state, and replay chronology, not benchmark metrics. Neural anomaly sidecar is roadmap
-                only and is not part of the deployed runtime path yet.
-              </p>
-            </div>
-          </section>
-          </aside>
+            </aside>
+            <section className="rayzaa-workspace-main">
+              {workspaceContent}
+            </section>
+          </div>
         </section>
       </div>
     </main>
