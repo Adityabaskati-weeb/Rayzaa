@@ -4,8 +4,9 @@ import asyncio
 import json
 import urllib.request
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
+from zoneinfo import ZoneInfo
 
 from ..config import settings
 
@@ -16,6 +17,8 @@ TRUST_STATE_ORDER = {
     "Fractured": 2,
     "Escalated": 3,
 }
+
+IST = ZoneInfo("Asia/Kolkata")
 
 
 @dataclass(slots=True)
@@ -58,6 +61,13 @@ class TelegramAlertDispatcher:
         escalation = "Active" if trust_state == "Escalated" else "Standby"
         return flagged, needs_review, escalation
 
+    @staticmethod
+    def _format_ist_timestamp(timestamp: datetime) -> str:
+        if timestamp.tzinfo is None:
+            timestamp = timestamp.replace(tzinfo=timezone.utc)
+        localized = timestamp.astimezone(IST)
+        return localized.strftime("%Y-%m-%d %I:%M:%S %p IST")
+
     def build_message(
         self,
         *,
@@ -88,12 +98,12 @@ class TelegramAlertDispatcher:
                 f"Decision: {decision} | Fused score: {fused_score:.0f}",
                 f"Evidence: {summary or 'Awaiting detailed evidence summary.'}",
                 replay_line,
-                f"Time: {timestamp.isoformat()}",
+                f"Time: {self._format_ist_timestamp(timestamp)}",
             ]
         )
 
     async def dispatch(self, message: str) -> AlertDispatchResult:
-        delivered_at = datetime.utcnow().isoformat()
+        delivered_at = self._format_ist_timestamp(datetime.now(timezone.utc))
         if not self.is_configured():
             return AlertDispatchResult(
                 ok=False,
