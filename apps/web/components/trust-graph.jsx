@@ -35,37 +35,37 @@ function nodeColor(kind, risk, focus) {
     return "#1a1a1a";
   }
   if (kind === "device") {
-    return "#dce5f2";
+    return "#d2dde8";
   }
   if (kind === "merchant") {
-    return "#e5eadf";
+    return "#dbe4d5";
   }
   if (kind === "geo") {
-    return "#ece4f2";
+    return "#e4dceb";
   }
   if (risk >= 82) {
-    return "#f3d6dc";
+    return "#ecd7da";
   }
   if (risk >= 65) {
-    return "#f7e2d0";
+    return "#efddd0";
   }
   if (risk >= 40) {
-    return "#f6edd4";
+    return "#eee2cb";
   }
-  return "#e8efe4";
+  return "#e3eadc";
 }
 
 function edgeColor(kind) {
   if (kind === "device") {
-    return "#b8c8dd";
+    return "#b7c3d1";
   }
   if (kind === "merchant") {
-    return "#b9c9b4";
+    return "#b7c4b1";
   }
   if (kind === "geo") {
-    return "#cfc3dc";
+    return "#cabed7";
   }
-  return "#d6cbbf";
+  return "#d0c4b7";
 }
 
 function sanitizeElements(elements) {

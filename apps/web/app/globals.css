@@ -1,25 +1,32 @@
 :root {
-  --bg: #faf7f2;
-  --panel: #ffffff;
+  --bg: #f7f2ea;
+  --panel: #fffdfa;
   --panel-strong: #ffffff;
-  --line: #e5e0d7;
-  --line-strong: #d7d0c4;
+  --surface-subtle: #fbf7f0;
+  --surface-muted: #f3ede3;
+  --surface-warm: #f6f0e6;
+  --line: #e1d8cc;
+  --line-strong: #cfc3b4;
   --text: #1a1a1a;
-  --muted: #66635d;
+  --muted: #686159;
   --cyan: #1a1a1a;
-  --mint: #107c10;
-  --amber: #c88912;
-  --orange: #d97706;
-  --red: #c8102e;
+  --mint: #3f7d5f;
+  --amber: #ae7a27;
+  --orange: #bf6c2f;
+  --red: #b54a4f;
   --shadow: none;
-  --state-healthy: #107c10;
-  --state-watch: #c88912;
-  --state-fractured: #d97706;
-  --state-escalated: #c8102e;
-  --state-healthy-line: rgba(16, 124, 16, 0.22);
-  --state-watch-line: rgba(200, 137, 18, 0.24);
-  --state-fractured-line: rgba(217, 119, 6, 0.24);
-  --state-escalated-line: rgba(200, 16, 46, 0.28);
+  --state-healthy: #3f7d5f;
+  --state-watch: #ae7a27;
+  --state-fractured: #bf6c2f;
+  --state-escalated: #b54a4f;
+  --state-healthy-line: rgba(63, 125, 95, 0.24);
+  --state-watch-line: rgba(174, 122, 39, 0.24);
+  --state-fractured-line: rgba(191, 108, 47, 0.24);
+  --state-escalated-line: rgba(181, 74, 79, 0.28);
+  --state-healthy-fill: rgba(63, 125, 95, 0.1);
+  --state-watch-fill: rgba(174, 122, 39, 0.1);
+  --state-fractured-fill: rgba(191, 108, 47, 0.1);
+  --state-escalated-fill: rgba(181, 74, 79, 0.1);
   --font-mono: "IBM Plex Mono", "Cascadia Code", "Consolas", monospace;
   --font-sans: "IBM Plex Sans", "Segoe UI", sans-serif;
   --font-serif: "IBM Plex Serif", Georgia, serif;
@@ -55,7 +62,7 @@ body {
 .global-footer {
   margin-top: 64px;
   border-top: 1px solid var(--line);
-  background: #fdfbf7;
+  background: var(--surface-warm);
 }
 
 .global-footer-inner {
@@ -109,7 +116,7 @@ button {
   padding: 18px 24px;
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
-  background: #fdfbf7;
+  background: var(--surface-warm);
   box-shadow: none;
 }
 
@@ -159,7 +166,7 @@ button {
   padding: 18px 24px;
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
-  background: #fdfbf7;
+  background: var(--surface-warm);
   box-shadow: none;
 }
 
@@ -679,7 +686,7 @@ button {
   padding: 12px 14px;
   border: 1px solid var(--line);
   border-radius: 0;
-  background: #fcfaf6;
+  background: var(--surface-subtle);
 }
 
 .payment-proof-note strong {
@@ -753,7 +760,7 @@ button {
   align-items: flex-start;
   padding: 20px 22px 18px;
   border-bottom: 1px solid var(--line);
-  background: #fdfbf7;
+  background: var(--surface-warm);
 }
 
 .signal-list,
@@ -774,7 +781,7 @@ button {
 .save-policy {
   border: 1px solid var(--line);
   border-radius: 0;
-  background: #ffffff;
+  background: var(--panel);
   color: var(--text);
   transition: border-color 180ms ease, background 180ms ease, color 180ms ease;
 }
@@ -833,25 +840,25 @@ button {
 .state-pill.state-healthy {
   color: var(--state-healthy);
   border-color: var(--state-healthy-line);
-  background: rgba(16, 124, 16, 0.08);
+  background: var(--state-healthy-fill);
 }
 
 .state-pill.state-watch {
   color: var(--state-watch);
   border-color: var(--state-watch-line);
-  background: rgba(200, 137, 18, 0.09);
+  background: var(--state-watch-fill);
 }
 
 .state-pill.state-fractured {
   color: var(--state-fractured);
   border-color: var(--state-fractured-line);
-  background: rgba(217, 119, 6, 0.09);
+  background: var(--state-fractured-fill);
 }
 
 .state-pill.state-escalated {
   color: var(--state-escalated);
   border-color: var(--state-escalated-line);
-  background: rgba(200, 16, 46, 0.08);
+  background: var(--state-escalated-fill);
 }
 
 .signal-topline,
@@ -1023,7 +1030,7 @@ button {
 .graph-toolbar-meta span {
   padding: 4px 8px;
   border: 1px solid var(--line);
-  background: #fcfaf6;
+  background: var(--surface-subtle);
 }
 
 .graph-interaction-note {
@@ -1070,10 +1077,10 @@ button {
   border-radius: 0;
 }
 
-.legend-account { background: var(--mint); }
-.legend-device { background: #8ec5ff; }
-.legend-merchant { background: #89f0cb; }
-.legend-geo { background: #d7b8ff; }
+.legend-account { background: var(--state-healthy); }
+.legend-device { background: #afbdd0; }
+.legend-merchant { background: #b6c7ae; }
+.legend-geo { background: #ccbedc; }
 
 .graph-toolbar-actions {
   display: flex;
@@ -1151,7 +1158,7 @@ button {
 
 .replay-status-card-active {
   border-color: var(--text);
-  background: #faf7f2;
+  background: var(--surface-muted);
 }
 
 .action-row {
@@ -1480,7 +1487,7 @@ button {
   padding: 12px;
   border-radius: 0;
   border: 1px solid var(--line);
-  background: #ffffff;
+  background: var(--panel);
   color: var(--muted);
 }
 
@@ -2123,13 +2130,13 @@ button {
 
 .rayzaa-sidebar-nav button:hover {
   border-left-color: var(--text);
-  background: #f7f2ea;
+  background: var(--surface-muted);
 }
 
 .rayzaa-sidebar-nav button.is-active {
   border-color: var(--line);
   border-left: 3px solid var(--text);
-  background: #ffffff;
+  background: var(--panel);
 }
 
 .rayzaa-sidebar-actions {
@@ -2198,7 +2205,7 @@ button {
   padding: 22px 24px;
   border: 1px solid var(--line);
   border-left: 4px solid var(--line);
-  background: #ffffff;
+  background: var(--panel);
 }
 
 .rayzaa-overview-focus.state-healthy {
