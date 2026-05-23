@@ -5,10 +5,15 @@
   --surface-subtle: #fbf7f0;
   --surface-muted: #f3ede3;
   --surface-warm: #f6f0e6;
+  --surface-stone: #e8ded1;
   --line: #e1d8cc;
   --line-strong: #cfc3b4;
   --text: #1a1a1a;
   --muted: #686159;
+  --ink-blue: #2f4658;
+  --steel-blue: #7c98ae;
+  --sage-soft: #a7b8a6;
+  --brass-soft: #b08a4a;
   --cyan: #1a1a1a;
   --mint: #3f7d5f;
   --amber: #ae7a27;
@@ -116,7 +121,9 @@ button {
   padding: 18px 24px;
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
-  background: var(--surface-warm);
+  background:
+    linear-gradient(180deg, rgba(47, 70, 88, 0.04), rgba(47, 70, 88, 0)),
+    var(--surface-warm);
   box-shadow: none;
 }
 
@@ -166,7 +173,9 @@ button {
   padding: 18px 24px;
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
-  background: var(--surface-warm);
+  background:
+    linear-gradient(180deg, rgba(47, 70, 88, 0.05), rgba(47, 70, 88, 0)),
+    var(--surface-warm);
   box-shadow: none;
 }
 
@@ -242,7 +251,9 @@ button {
 }
 
 .status-chip.synced {
-  color: var(--mint);
+  color: var(--ink-blue);
+  border-color: rgba(47, 70, 88, 0.16);
+  background: rgba(47, 70, 88, 0.04);
 }
 
 .status-chip.reconnecting,
@@ -686,7 +697,9 @@ button {
   padding: 12px 14px;
   border: 1px solid var(--line);
   border-radius: 0;
-  background: var(--surface-subtle);
+  background:
+    linear-gradient(180deg, rgba(124, 152, 174, 0.08), rgba(124, 152, 174, 0)),
+    var(--surface-subtle);
 }
 
 .payment-proof-note strong {
@@ -946,7 +959,7 @@ button {
   font-family: var(--font-mono);
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  background: #ffffff;
+  background: var(--panel-strong);
 }
 
 .score-band {
@@ -1030,12 +1043,13 @@ button {
 .graph-toolbar-meta span {
   padding: 4px 8px;
   border: 1px solid var(--line);
-  background: var(--surface-subtle);
+  background: rgba(124, 152, 174, 0.08);
+  color: var(--ink-blue);
 }
 
 .graph-interaction-note {
   margin: 0;
-  color: var(--muted);
+  color: var(--ink-blue);
   font-size: 11px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -1046,8 +1060,8 @@ button {
   min-height: 460px;
   cursor: grab;
   background:
-    linear-gradient(rgba(229, 224, 215, 0.72) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(229, 224, 215, 0.72) 1px, transparent 1px);
+    linear-gradient(rgba(222, 214, 203, 0.7) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(222, 214, 203, 0.7) 1px, transparent 1px);
   background-size: 22px 22px;
 }
 
@@ -1064,7 +1078,7 @@ button {
   display: flex;
   flex-wrap: wrap;
   gap: 14px;
-  color: var(--muted);
+  color: var(--ink-blue);
   font-size: 12px;
   font-family: var(--font-mono);
 }
@@ -1078,9 +1092,9 @@ button {
 }
 
 .legend-account { background: var(--state-healthy); }
-.legend-device { background: #afbdd0; }
-.legend-merchant { background: #b6c7ae; }
-.legend-geo { background: #ccbedc; }
+.legend-device { background: #a8bdcf; }
+.legend-merchant { background: #afc1ae; }
+.legend-geo { background: #c8bdd7; }
 
 .graph-toolbar-actions {
   display: flex;
@@ -1760,7 +1774,9 @@ button {
   align-items: center;
   padding: 14px 20px;
   border: 1px solid var(--line);
-  background: #ffffff;
+  background:
+    linear-gradient(180deg, rgba(47, 70, 88, 0.04), rgba(47, 70, 88, 0)),
+    #ffffff;
   box-shadow: 0 12px 28px rgba(26, 26, 26, 0.08);
 }
 
@@ -2073,7 +2089,9 @@ button {
   display: grid;
   gap: 14px;
   padding: 14px 14px 12px;
-  background: #fcfaf6;
+  background:
+    linear-gradient(180deg, rgba(47, 70, 88, 0.045), rgba(47, 70, 88, 0)),
+    #fcfaf6;
 }
 
 .rayzaa-sidebar-head {
@@ -2107,7 +2125,7 @@ button {
   width: 100%;
   padding: 10px 12px;
   border: 1px solid transparent;
-  border-left: 2px solid var(--line);
+  border-left: 2px solid var(--surface-stone);
   background: transparent;
   color: var(--text);
   text-align: left;
@@ -2129,14 +2147,19 @@ button {
 }
 
 .rayzaa-sidebar-nav button:hover {
-  border-left-color: var(--text);
-  background: var(--surface-muted);
+  border-left-color: var(--steel-blue);
+  background: rgba(124, 152, 174, 0.08);
 }
 
 .rayzaa-sidebar-nav button.is-active {
-  border-color: var(--line);
-  border-left: 3px solid var(--text);
-  background: var(--panel);
+  border-color: rgba(47, 70, 88, 0.16);
+  border-left: 3px solid var(--ink-blue);
+  background: rgba(47, 70, 88, 0.045);
+}
+
+.rayzaa-sidebar-nav button.is-active strong,
+.rayzaa-sidebar-nav button.is-active span {
+  color: var(--ink-blue);
 }
 
 .rayzaa-sidebar-actions {
@@ -2157,6 +2180,11 @@ button {
   font-size: 11px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
+}
+
+.rayzaa-sidebar-actions .ghost-button:hover,
+.rayzaa-sidebar-actions .portal-link-button:hover {
+  color: var(--ink-blue);
 }
 
 .rayzaa-workspace-main,
@@ -2205,7 +2233,9 @@ button {
   padding: 22px 24px;
   border: 1px solid var(--line);
   border-left: 4px solid var(--line);
-  background: var(--panel);
+  background:
+    linear-gradient(180deg, rgba(47, 70, 88, 0.04), rgba(47, 70, 88, 0)),
+    var(--panel);
 }
 
 .rayzaa-overview-focus.state-healthy {
@@ -2289,7 +2319,9 @@ button {
   gap: 8px;
   padding: 16px;
   border: 1px solid var(--line);
-  background: #fcfaf6;
+  background:
+    linear-gradient(180deg, rgba(232, 222, 209, 0.6), rgba(232, 222, 209, 0.28)),
+    #fcfaf6;
 }
 
 .rayzaa-overview-card span {
@@ -2303,6 +2335,7 @@ button {
 .rayzaa-overview-card strong {
   font-size: 22px;
   line-height: 1.12;
+  color: var(--ink-blue);
 }
 
 .rayzaa-overview-card p {
@@ -2716,7 +2749,9 @@ button {
 
 .graph-toolbar {
   padding: 18px 18px 12px;
-  background: #ffffff;
+  background:
+    linear-gradient(180deg, rgba(124, 152, 174, 0.08), rgba(124, 152, 174, 0)),
+    var(--panel-strong);
 }
 
 .graph-canvas {
@@ -2725,12 +2760,14 @@ button {
 }
 
 .graph-footer {
-  background: #ffffff;
+  background:
+    linear-gradient(180deg, rgba(232, 222, 209, 0.3), rgba(232, 222, 209, 0)),
+    #ffffff;
 }
 
 .graph-legend {
   padding: 0;
-  background: #ffffff;
+  background: transparent;
 }
 
 .replay-panel {
