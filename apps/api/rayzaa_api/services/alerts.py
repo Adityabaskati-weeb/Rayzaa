@@ -51,6 +51,13 @@ class TelegramAlertDispatcher:
         top = [reason.strip().rstrip(".") for reason in reasons[:2] if reason]
         return "; ".join(top)
 
+    @staticmethod
+    def _status_summary(trust_state: str, decision: str) -> tuple[str, str, str]:
+        flagged = "Yes" if trust_state != "Healthy" else "No"
+        needs_review = "Yes" if trust_state != "Healthy" or decision != "approve" else "No"
+        escalation = "Active" if trust_state == "Escalated" else "Standby"
+        return flagged, needs_review, escalation
+
     def build_message(
         self,
         *,
@@ -65,10 +72,18 @@ class TelegramAlertDispatcher:
     ) -> str:
         summary = self._top_evidence_lines(reasons)
         replay_line = "Replay: available in Trust Replay." if replay_available else "Replay: pending."
+        flagged, needs_review, escalation = self._status_summary(trust_state, decision)
+        headline = "Rayzaa operational update" if trust_state == "Healthy" else "Rayzaa operational alert"
+        state_line = (
+            f"Case {case_id} registered as {trust_state.upper()}."
+            if trust_state == "Healthy"
+            else f"Case {case_id} moved to {trust_state.upper()}."
+        )
         return "\n".join(
             [
-                "Rayzaa operational alert",
-                f"Case {case_id} moved to {trust_state.upper()}.",
+                headline,
+                state_line,
+                f"Flagged: {flagged} | Needs review: {needs_review} | Escalation: {escalation}",
                 f"Transaction: {transaction_id}",
                 f"Decision: {decision} | Fused score: {fused_score:.0f}",
                 f"Evidence: {summary or 'Awaiting detailed evidence summary.'}",
