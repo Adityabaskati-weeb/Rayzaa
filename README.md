@@ -36,6 +36,8 @@ It is used to:
 - show latest live payment proof
 - show operational handoff into Rayzaa
 
+![PayEasy dashboard](./docs/assets/screenshots/payeasy-surface.png)
+
 ### 2. Rayzaa Command Center
 
 Rayzaa is the analyst-facing dashboard.
@@ -49,6 +51,8 @@ It is used to:
 - review case chronology
 - inspect graph relationships
 - replay the case investigation path
+
+![Rayzaa analyst dashboard](./docs/assets/screenshots/rayzaa-command.png)
 
 ## Why Two Dashboards
 
