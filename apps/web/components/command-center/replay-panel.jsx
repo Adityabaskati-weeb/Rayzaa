@@ -24,18 +24,18 @@ export default function ReplayPanel({
         ? "Return to live context"
         : "Follow live";
   const replayStatus = replayLocked
-    ? "Demo mode is locked to the live payment proof. Seed baseline context, complete one live payment, then open Trust Replay."
+    ? "Replay unlocks after the first non-seed live payment."
     : !replayContext?.hasReplay
-    ? "No replay sequence is loaded. Live transaction state remains active, and the case timeline stays available as the fallback investigation path."
+    ? "No replay sequence is loaded yet. The live case timeline remains the active investigation path."
     : replayContext.mode === "replay-ready"
-      ? "Scenario replay is ready for inspection. Live queue, Signal Rail, and case focus remain in the operational context until you pin a replay step."
+      ? "Scenario replay is ready. Pin a step to inspect graph, evidence, and trust-state progression."
     : replayContext.mode === "live-case-ready"
-      ? "Live case replay is ready from persisted chronology. Select a step to inspect graph, evidence, and trust-state history."
-    : replayContext.mode === "selected-case"
-      ? "Replay is active, but the investigation view remains pinned to the selected case."
+      ? "Live case replay is ready from persisted chronology. Select a step to inspect the trust transition path."
+      : replayContext.mode === "selected-case"
+      ? "Replay is active while the workspace stays pinned to the selected case."
       : replayContext.mode === "manual-step"
-        ? `Pinned to replay step ${replayContext.activeStepIndex}/${replayContext.totalSteps}: ${replayContext.activeStepLabel || "selected chronology step"}.`
-        : `Following replay step ${replayContext.activeStepIndex}/${replayContext.totalSteps}: ${replayContext.activeStepLabel || "latest chronology step"}.`;
+        ? `Pinned to step ${replayContext.activeStepIndex}/${replayContext.totalSteps}: ${replayContext.activeStepLabel || "selected chronology step"}.`
+        : `Following step ${replayContext.activeStepIndex}/${replayContext.totalSteps}: ${replayContext.activeStepLabel || "latest chronology step"}.`;
   const activeStep = replaySteps[effectiveReplayIndex] || null;
 
   return (
@@ -43,7 +43,7 @@ export default function ReplayPanel({
       <div className="replay-header">
         <div>
           <p className="eyebrow">Trust Replay</p>
-          <h2>Reconstruct trust fracture in time</h2>
+          <h2>Step through trust-state progression</h2>
           <p className="replay-context-copy">{replayStatus}</p>
         </div>
         <button
@@ -70,11 +70,13 @@ export default function ReplayPanel({
                   ? "Follow chronology"
                   : "Live context"}
           </strong>
-          <span>{replayContext?.hasReplay ? `${replayContext.totalSteps} replay checkpoints loaded` : "Replay unlocks from live checkpoints or scenario playback."}</span>
+          <span>{replayContext?.hasReplay ? `${replayContext.totalSteps} checkpoints loaded` : "Replay unlocks from live checkpoints or scenario playback."}</span>
         </div>
-        <div className="replay-status-card">
+        <div className="replay-status-card replay-status-card-active">
           <span className="ops-overview-label">Active step</span>
-          <strong>{activeStep?.label || "Awaiting replay step"}</strong>
+          <strong>
+            {activeStep ? `Step ${String(effectiveReplayIndex + 1).padStart(2, "0")} | ${activeStep.label}` : "Awaiting replay step"}
+          </strong>
           <span>{activeStep?.timestamp ? formatTimestamp(activeStep.timestamp) : "Timeline-only investigation remains active."}</span>
         </div>
         <div className="replay-status-card">
@@ -107,7 +109,7 @@ export default function ReplayPanel({
           <div>
             <span className="context-label">Replay scrubber</span>
             <p className="muted-copy">
-              Step selection keeps graph, timeline, and Evidence Lens synchronized without creating a second scoring path.
+              Step selection keeps graph, timeline, and Evidence Lens synchronized.
             </p>
           </div>
           {activeStep && <TrustStatePill value={activeStep.trustState} />}
@@ -128,6 +130,7 @@ export default function ReplayPanel({
               className={index === effectiveReplayIndex ? "active" : ""}
               onClick={() => onReplayIndexChange(index)}
             >
+              <span className="timeline-point-index">{String(index + 1).padStart(2, "0")}</span>
               <div className="timeline-point-head">
                 <span>{step.label}</span>
                 <TrustStatePill value={step.trustState} />

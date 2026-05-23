@@ -8,17 +8,17 @@ const DEMO_PROFILES = [
   {
     id: "dormant_device_reuse",
     label: "Dormant device reuse",
-    description: "Pre-seeded account context reactivates on a shared device and should drive review."
+    description: "Reactivates a pre-seeded account on a shared device and should move the case toward review."
   },
   {
     id: "baseline",
     label: "Baseline checkout",
-    description: "Controlled low-pressure payment for proving the same live ingest path without escalation."
+    description: "Low-pressure payment for proving the live ingest path without escalation."
   },
   {
     id: "merchant_retry_pressure",
     label: "Merchant retry pressure",
-    description: "Payment lands during elevated merchant burst context and is useful for queue triage demos."
+    description: "Payment lands during elevated merchant retry pressure and is useful for queue triage."
   }
 ];
 
@@ -60,7 +60,7 @@ export default function LivePaymentPanel({ apiBase, operations, latestLiveSignal
   const [amount, setAmount] = useState("45999");
   const [riskPreset, setRiskPreset] = useState("dormant_device_reuse");
   const [phase, setPhase] = useState("idle");
-  const [statusMessage, setStatusMessage] = useState("Use Razorpay Test Mode. Webhook ingest remains the source of truth for Rayzaa.");
+  const [statusMessage, setStatusMessage] = useState("Use Razorpay Test Mode. Webhook ingest remains the source of truth.");
   const [checkoutRef, setCheckoutRef] = useState("");
 
   const integrationStatus = operations?.integrationStatus || {};
@@ -109,7 +109,7 @@ export default function LivePaymentPanel({ apiBase, operations, latestLiveSignal
     }
 
     setPhase("ingested");
-    setStatusMessage("Razorpay webhook received. Rayzaa updated the live trust state, evidence, queue, and replay chronology.");
+    setStatusMessage("Razorpay webhook received. Rayzaa updated trust state, evidence, queue, and replay.");
   }, [latestLiveSignal, phase]);
 
   useEffect(() => {
@@ -117,15 +117,15 @@ export default function LivePaymentPanel({ apiBase, operations, latestLiveSignal
       return;
     }
     if (latestAlert.status === "sent") {
-      setStatusMessage("Live ingest completed and the Telegram operational alert was delivered. Open the case to inspect queue, evidence, and replay.");
+      setStatusMessage("Live ingest completed and Telegram was delivered. Open the case to inspect queue, evidence, and replay.");
       return;
     }
     if (latestAlert.status === "skipped") {
-      setStatusMessage("Live ingest completed. Telegram is unavailable in this environment, so queue, timeline, and replay remain the operational source of truth.");
+      setStatusMessage("Live ingest completed. Telegram is unavailable here, so queue, timeline, and replay remain the source of truth.");
       return;
     }
     if (latestAlert.status === "failed") {
-      setStatusMessage("Live ingest completed, but Telegram delivery failed. Continue the investigation from the queue, timeline, and replay surfaces.");
+      setStatusMessage("Live ingest completed, but Telegram delivery failed. Continue from queue, timeline, and replay.");
     }
   }, [latestAlert, phase]);
 
@@ -137,7 +137,7 @@ export default function LivePaymentPanel({ apiBase, operations, latestLiveSignal
     const timer = window.setTimeout(() => {
       setPhase("webhook-delayed");
       setStatusMessage(
-        "Checkout was verified, but the Razorpay webhook has not arrived yet. Rayzaa will not simulate ingest. If the delay persists, continue with deterministic Trust Replay or a seeded case."
+        "Checkout was verified, but the Razorpay webhook has not arrived yet. Rayzaa will not simulate ingest. If the delay persists, continue with Trust Replay or a seeded case."
       );
     }, 20000);
 
@@ -152,7 +152,7 @@ export default function LivePaymentPanel({ apiBase, operations, latestLiveSignal
     }
 
     setPhase("creating-order");
-    setStatusMessage("Creating Razorpay test order through the PayEasy adapter.");
+    setStatusMessage("Creating Razorpay test order.");
 
     try {
       const orderResponse = await fetch(`${apiBase}/api/integrations/razorpay/orders`, {
@@ -171,7 +171,7 @@ export default function LivePaymentPanel({ apiBase, operations, latestLiveSignal
       await ensureRazorpayScript();
       setPhase("checkout-open");
       setCheckoutRef(orderPayload.order?.id || "");
-      setStatusMessage("Razorpay checkout opened in test mode. Complete the payment to trigger the webhook.");
+      setStatusMessage("Checkout opened in test mode. Complete the payment to trigger the webhook.");
 
       const instance = new window.Razorpay({
         key: orderPayload.keyId,
@@ -186,12 +186,12 @@ export default function LivePaymentPanel({ apiBase, operations, latestLiveSignal
         modal: {
           ondismiss: () => {
             setPhase("dismissed");
-            setStatusMessage("Checkout was dismissed. No webhook ingest will occur until the test payment succeeds.");
+            setStatusMessage("Checkout was dismissed. No webhook ingest occurs until the test payment succeeds.");
           }
         },
         handler: async (response) => {
           setPhase("verifying");
-          setStatusMessage("Checkout succeeded. Verifying client callback and waiting for the webhook to enter Rayzaa.");
+          setStatusMessage("Checkout succeeded. Verifying the callback and waiting for the webhook.");
           try {
             const verifyResponse = await fetch(`${apiBase}/api/integrations/razorpay/checkout/verify`, {
               method: "POST",
@@ -203,7 +203,7 @@ export default function LivePaymentPanel({ apiBase, operations, latestLiveSignal
               throw new Error(verifyPayload.detail || "Razorpay callback verification failed.");
             }
             setPhase("awaiting-webhook");
-            setStatusMessage(verifyPayload.message || "Checkout verified. Waiting for Razorpay webhook ingest.");
+            setStatusMessage(verifyPayload.message || "Checkout verified. Waiting for webhook ingest.");
           } catch (error) {
             setPhase("error");
             setStatusMessage(error.message || "Razorpay callback verification failed.");
@@ -223,7 +223,7 @@ export default function LivePaymentPanel({ apiBase, operations, latestLiveSignal
       <div className="payment-proof-header">
         <div>
           <p className="eyebrow">Live Payment Proof</p>
-          <h2>PayEasy test checkout into Rayzaa</h2>
+          <h2>PayEasy checkout into Rayzaa</h2>
           <p className="payment-proof-copy">{statusMessage}</p>
         </div>
         <div className="payment-status-cluster">
@@ -296,7 +296,7 @@ export default function LivePaymentPanel({ apiBase, operations, latestLiveSignal
               <span>{phase.replaceAll("-", " ")}</span>
             </div>
             <p className="muted-copy">
-              Webhook ingest remains authoritative. Checkout verification does not bypass the Rayzaa transaction pipeline.
+              Webhook ingest remains authoritative. Checkout verification does not bypass the Rayzaa pipeline.
             </p>
             {checkoutRef && <p className="muted-copy">Order {checkoutRef}</p>}
           </div>
@@ -336,13 +336,13 @@ export default function LivePaymentPanel({ apiBase, operations, latestLiveSignal
                 </button>
               </>
             ) : !telegram.configured ? (
-              <p className="muted-copy">Telegram is not configured here. Queue, case timeline, and replay remain the operational fallback during the demo.</p>
+              <p className="muted-copy">Telegram is not configured here. Queue, timeline, and replay remain the operational fallback.</p>
             ) : latestLiveSignal && TRUST_STATE_ORDER[latestLiveSignal.trustState] < TRUST_STATE_ORDER[alertThreshold] ? (
               <p className="muted-copy">
                 The latest live case is {latestLiveSignal.trustState}. Telegram is configured for {alertThreshold} and above, so no alert is expected yet.
               </p>
             ) : (
-              <p className="muted-copy">Telegram alerts will appear here after a live case reaches the configured trust-state threshold.</p>
+              <p className="muted-copy">Telegram appears here after a live case reaches the configured trust-state threshold.</p>
             )}
           </div>
         </div>

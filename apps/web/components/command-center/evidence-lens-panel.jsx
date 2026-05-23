@@ -88,6 +88,26 @@ function caseMetricItems(focusCase, evidence) {
   ];
 }
 
+function topEvidenceReasons(evidence) {
+  const order = ["modelEvidence", "graphEvidence", "driftEvidence", "policyEvidence"];
+  const reasons = [];
+
+  for (const key of order) {
+    const group = getEvidenceGroup(evidence, key);
+    for (const item of group.items) {
+      if (!item?.detail) {
+        continue;
+      }
+      reasons.push(item.detail);
+      if (reasons.length === 2) {
+        return reasons;
+      }
+    }
+  }
+
+  return reasons;
+}
+
 export default function EvidenceLensPanel({
   activeTab,
   onTabChange,
@@ -106,13 +126,14 @@ export default function EvidenceLensPanel({
 }) {
   const caseSource = focusCase?.source || evidence.source || "live";
   const metrics = caseMetricItems(focusCase, evidence);
+  const primaryReasons = topEvidenceReasons(evidence);
 
   return (
     <aside className="panel evidence-panel">
       <div className="panel-header">
         <div>
           <p className="eyebrow">Evidence Lens</p>
-          <h2>Next actions</h2>
+          <h2>Case evidence</h2>
         </div>
         <div className="tab-strip">
           {["evidence", "queue", "policy"].map((tab) => (
@@ -122,7 +143,7 @@ export default function EvidenceLensPanel({
               className={tab === activeTab ? "active" : ""}
               onClick={() => onTabChange(tab)}
             >
-              {tab === "evidence" ? "Case Studio" : tab === "queue" ? "Escalation Queue" : "Policy Lab"}
+              {tab === "evidence" ? "Evidence" : tab === "queue" ? "Queue" : "Policy"}
             </button>
           ))}
         </div>
@@ -133,7 +154,7 @@ export default function EvidenceLensPanel({
           <div className="case-card">
             <div className="case-header">
               <div>
-                <p className="eyebrow">Investigation Summary</p>
+                <p className="eyebrow">Focus case</p>
                 <h3>{focusCase?.title || "No focus case selected"}</h3>
               </div>
               <div className="case-header-meta">
@@ -143,8 +164,18 @@ export default function EvidenceLensPanel({
             </div>
             <p className="copilot-summary">
               {focusCase?.summary ||
-                "Rayzaa will surface a backend-derived case summary here once a case enters active investigation."}
+                "Rayzaa surfaces the active case summary here once live ingest creates investigation context."}
             </p>
+            {primaryReasons.length > 0 && (
+              <div className="evidence-priority-strip">
+                <span className="context-label">Primary signals</span>
+                <div className="evidence-priority-list">
+                  {primaryReasons.map((reason) => (
+                    <p key={reason}>{reason}</p>
+                  ))}
+                </div>
+              </div>
+            )}
             <div className="case-metadata-grid">
               <div className="case-metadata-cell">
                 <span className="context-label">Case</span>
@@ -166,7 +197,7 @@ export default function EvidenceLensPanel({
               ))}
             </div>
             <div className={`context-banner ${replayContext?.mode || "live"}`}>
-              <span className="context-label">Context</span>
+              <span className="context-label">Mode</span>
               <p>{replayContextCopy(replayContext, focusCase)}</p>
             </div>
             <div className="action-row">
@@ -186,11 +217,11 @@ export default function EvidenceLensPanel({
 
           <div className="info-block">
             <div className="info-header">
-              <h4>Recommended next actions</h4>
+              <h4>Operator actions</h4>
               <span>{focusCase?.caseId || "pending-case"}</span>
             </div>
             <p className="muted-copy">
-              Operator actions remain backend-authoritative. Replay cases stay read-only to preserve chronology integrity.
+              Live cases can be routed here. Replay stays read-only to preserve chronology.
             </p>
             <ul className="stack-list">
               {(focusCase?.recommendedActions || []).map((item) => (

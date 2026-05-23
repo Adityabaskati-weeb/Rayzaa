@@ -617,6 +617,7 @@ button {
   margin: var(--space-2) 0 0;
   max-width: 760px;
   color: var(--muted);
+  line-height: 1.45;
 }
 
 .payment-status-cluster {
@@ -681,9 +682,16 @@ button {
   background: #fcfaf6;
 }
 
+.payment-proof-note strong {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 500;
+}
+
 .payment-proof-note p {
   margin: 6px 0 0;
   color: var(--muted);
+  line-height: 1.45;
 }
 
 .payment-proof-card {
@@ -994,44 +1002,41 @@ button {
 
 .graph-shell {
   display: grid;
-  grid-template-rows: auto auto 1fr auto;
+  grid-template-rows: auto 1fr auto;
   min-height: 0;
 }
 
 .graph-toolbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-  padding: 18px 18px 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  padding: 18px 18px 12px;
 }
 
-.graph-metric-strip {
-  padding: 12px 18px 0;
+.graph-toolbar-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.graph-toolbar-meta span {
+  padding: 4px 8px;
+  border: 1px solid var(--line);
+  background: #fcfaf6;
 }
 
 .graph-interaction-note {
   margin: 0;
-  padding: 10px 18px 0;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 11px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   font-family: var(--font-mono);
 }
 
-.graph-metric-card {
-  flex: 1;
-  display: grid;
-  gap: 4px;
-  padding: 10px 12px;
-  border: 1px solid var(--line);
-  border-radius: 0;
-  background: #fcfaf6;
-}
-
 .graph-canvas {
-  min-height: 420px;
+  min-height: 460px;
   cursor: grab;
   background:
     linear-gradient(rgba(229, 224, 215, 0.72) 1px, transparent 1px),
@@ -1039,11 +1044,19 @@ button {
   background-size: 22px 22px;
 }
 
+.graph-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 18px 18px;
+}
+
 .graph-legend {
   display: flex;
   flex-wrap: wrap;
   gap: 14px;
-  padding: 0 18px 18px;
   color: var(--muted);
   font-size: 12px;
   font-family: var(--font-mono);
@@ -1061,6 +1074,13 @@ button {
 .legend-device { background: #8ec5ff; }
 .legend-merchant { background: #89f0cb; }
 .legend-geo { background: #d7b8ff; }
+
+.graph-toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 8px;
+}
 
 .tab-strip {
   display: flex;
@@ -1127,6 +1147,11 @@ button {
 .replay-status-card strong {
   font-family: var(--font-mono);
   font-size: 14px;
+}
+
+.replay-status-card-active {
+  border-color: var(--text);
+  background: #faf7f2;
 }
 
 .action-row {
@@ -1215,6 +1240,26 @@ button {
 .replay-context-copy {
   margin: 0;
   color: var(--muted);
+}
+
+.evidence-priority-strip {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  background: #fcfaf6;
+}
+
+.evidence-priority-list {
+  display: grid;
+  gap: 8px;
+}
+
+.evidence-priority-list p {
+  margin: 0;
+  color: var(--text);
+  line-height: 1.45;
 }
 
 .context-label {
@@ -1366,30 +1411,32 @@ button {
 }
 
 .replay-panel {
-  padding: 18px;
+  padding: 16px 18px 18px;
 }
 
 .replay-context-copy {
   margin-top: var(--space-2);
+  max-width: 720px;
 }
 
 .replay-status-grid {
-  margin: 0 0 14px;
+  margin: 0 0 12px;
 }
 
 .scenario-row {
   display: flex;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: 10px;
+  margin-bottom: 14px;
   overflow: auto;
 }
 
 .scenario-card {
-  min-width: 280px;
+  min-width: 260px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px;
+  gap: 12px;
+  padding: 14px;
   text-align: left;
 }
 
@@ -1437,6 +1484,22 @@ button {
   color: var(--muted);
 }
 
+.timeline-point-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin-bottom: 10px;
+  border: 1px solid var(--line);
+  background: #fcfaf6;
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-family: var(--font-mono);
+}
+
 .timeline-point-head {
   display: flex;
   align-items: flex-start;
@@ -1449,6 +1512,13 @@ button {
   border-color: var(--text);
   color: var(--text);
   background: #fcfaf6;
+  box-shadow: inset 3px 0 0 #1a1a1a;
+}
+
+.timeline-points button.active .timeline-point-index {
+  border-color: var(--text);
+  background: var(--text);
+  color: #ffffff;
 }
 
 .timeline-points span,
@@ -1857,7 +1927,7 @@ button {
 
 .payment-proof-copy {
   max-width: 760px;
-  line-height: 1.55;
+  line-height: 1.45;
 }
 
 .payment-proof-sequence {
@@ -2634,28 +2704,25 @@ button {
 
 .graph-shell {
   display: grid;
-  grid-template-rows: auto auto 1fr auto;
+  grid-template-rows: auto 1fr auto;
 }
 
 .graph-toolbar {
-  padding: 18px 18px 16px;
-  border-bottom: 1px solid var(--line);
+  padding: 18px 18px 12px;
   background: #ffffff;
 }
 
-.graph-metric-strip {
-  gap: 10px;
-  padding: 16px 18px;
-}
-
 .graph-canvas {
-  min-height: 300px;
-  border-top: 1px solid var(--line);
+  min-height: 460px;
   border-bottom: 1px solid var(--line);
 }
 
+.graph-footer {
+  background: #ffffff;
+}
+
 .graph-legend {
-  padding: 14px 18px 18px;
+  padding: 0;
   background: #ffffff;
 }
 

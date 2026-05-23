@@ -4,7 +4,31 @@ import { useEffect, useMemo, useRef } from "react";
 import cytoscape from "cytoscape";
 
 const GRAPH_WIDTH = 860;
-const GRAPH_HEIGHT = 420;
+const GRAPH_HEIGHT = 460;
+
+function formatNodeLabel(label, kind, focus) {
+  const value = String(label || "").trim();
+  if (!value) {
+    return "Pending";
+  }
+  if (focus) {
+    return value.length > 22 ? `${value.slice(0, 19)}...` : value;
+  }
+
+  const shortened = value
+    .replace(/^ACC-/i, "")
+    .replace(/^DEV-/i, "")
+    .replace(/^MER-/i, "")
+    .replace(/^GEO-/i, "");
+
+  if (kind === "merchant") {
+    return shortened.length > 16 ? `${shortened.slice(0, 13)}...` : shortened;
+  }
+  if (kind === "geo") {
+    return shortened.length > 14 ? `${shortened.slice(0, 11)}...` : shortened;
+  }
+  return shortened.length > 15 ? `${shortened.slice(0, 12)}...` : shortened;
+}
 
 function nodeColor(kind, risk, focus) {
   if (focus) {
@@ -76,6 +100,7 @@ function sanitizeElements(elements) {
       data: {
         id: data.id,
         label: data.label || data.id,
+        displayLabel: formatNodeLabel(data.label || data.id, data.kind || "other", Boolean(data.focus)),
         kind: data.kind || "other",
         risk: Number(data.risk || 0),
         focus: Boolean(data.focus)
@@ -158,9 +183,9 @@ function fitViewport(cy) {
     if (!elements.length) {
       return;
     }
-    cy.fit(elements, 52);
-    if (cy.zoom() > 1) {
-      cy.zoom(1);
+    cy.fit(elements, 64);
+    if (cy.zoom() > 0.96) {
+      cy.zoom(0.96);
       cy.center(elements);
     }
   } catch {}
@@ -221,17 +246,17 @@ export default function TrustGraph({ elements, trustState, replayLabel }) {
         {
           selector: "node",
           style: {
-            label: "data(label)",
+            label: "data(displayLabel)",
             color: (ele) => (ele.data("focus") ? "#faf7f2" : "#1a1a1a"),
-            "font-size": 11,
+            "font-size": 10,
             "font-family": "IBM Plex Mono, monospace",
             "text-wrap": "wrap",
-            "text-max-width": 90,
+            "text-max-width": 76,
             "text-valign": "bottom",
-            "text-margin-y": 9,
+            "text-margin-y": 8,
             width: 28,
             height: 28,
-            "border-width": 1.2,
+            "border-width": 1,
             "border-color": "#d7d0c4",
             "background-color": (ele) =>
               nodeColor(ele.data("kind"), Number(ele.data("risk") || 0), Boolean(ele.data("focus")))
@@ -242,17 +267,18 @@ export default function TrustGraph({ elements, trustState, replayLabel }) {
           style: {
             width: 30,
             height: 30,
-            "font-size": 12
+            "font-size": 11
           }
         },
         {
           selector: "edge",
           style: {
-            width: 1.6,
-            opacity: 0.9,
+            width: 1.15,
+            opacity: 0.58,
             "line-color": (ele) => edgeColor(ele.data("kind")),
             "target-arrow-color": (ele) => edgeColor(ele.data("kind")),
             "target-arrow-shape": "triangle",
+            "target-arrow-scale": 0.7,
             "curve-style": "bezier"
           }
         }
@@ -306,6 +332,13 @@ export default function TrustGraph({ elements, trustState, replayLabel }) {
         <div>
           <p className="eyebrow">Trust Memory Graph</p>
           <h3>{replayLabel || "Live relationship topology"}</h3>
+          <div className="graph-toolbar-meta">
+            <span>{focusNode?.data?.label || "Awaiting account"}</span>
+            <span>
+              {nodes.length} nodes | {edges.length} links
+            </span>
+            <span>{Math.round(maxAccountRisk)} max account risk</span>
+          </div>
         </div>
         <div className="graph-toolbar-actions">
           <button type="button" className="graph-toolbar-button" onClick={handleFitView}>
@@ -319,29 +352,15 @@ export default function TrustGraph({ elements, trustState, replayLabel }) {
           </div>
         </div>
       </div>
-      <p className="graph-interaction-note">Drag nodes to inspect local pressure. Scroll to zoom and drag the canvas to pan.</p>
-      <div className="graph-metric-strip">
-        <div className="graph-metric-card">
-          <span>Focus</span>
-          <strong>{focusNode?.data?.label || "Awaiting account"}</strong>
-        </div>
-        <div className="graph-metric-card">
-          <span>Topology</span>
-          <strong>
-            {nodes.length} nodes | {edges.length} links
-          </strong>
-        </div>
-        <div className="graph-metric-card">
-          <span>Exposure</span>
-          <strong>{Math.round(maxAccountRisk)} max account risk</strong>
-        </div>
-      </div>
       <div ref={containerRef} className="graph-canvas" />
-      <div className="graph-legend">
-        <span><i className="legend-dot legend-account" />Account {nodeCounts.account || 0}</span>
-        <span><i className="legend-dot legend-device" />Device {nodeCounts.device || 0}</span>
-        <span><i className="legend-dot legend-merchant" />Merchant {nodeCounts.merchant || 0}</span>
-        <span><i className="legend-dot legend-geo" />Geo {nodeCounts.geo || 0}</span>
+      <div className="graph-footer">
+        <div className="graph-legend">
+          <span><i className="legend-dot legend-account" />Account {nodeCounts.account || 0}</span>
+          <span><i className="legend-dot legend-device" />Device {nodeCounts.device || 0}</span>
+          <span><i className="legend-dot legend-merchant" />Merchant {nodeCounts.merchant || 0}</span>
+          <span><i className="legend-dot legend-geo" />Geo {nodeCounts.geo || 0}</span>
+        </div>
+        <p className="graph-interaction-note">Drag nodes, pan the canvas, and use fit view to recentre the case.</p>
       </div>
     </div>
   );

@@ -193,7 +193,7 @@ export default function PayEasyDashboard() {
           <p className="eyebrow">PayEasy</p>
           <h1>Live Checkout Surface</h1>
           <p className="portal-copy">
-            Customer-facing checkout proves the real payment trigger. Rayzaa remains the operational intelligence layer behind the handoff.
+            Customer-facing checkout proves the live payment trigger. Rayzaa handles the downstream investigation flow.
           </p>
         </div>
         <div className="portal-actions">
@@ -215,17 +215,17 @@ export default function PayEasyDashboard() {
       <div className="portal-body">
         <section className="panel payeasy-hero">
           <div className="payeasy-hero-copy">
-            <p className="eyebrow">Customer Dashboard</p>
-            <h2>Accept a real Razorpay test payment, then hand the case to Rayzaa.</h2>
+            <p className="eyebrow">Checkout workspace</p>
+            <h2>Complete a Razorpay test payment, then hand the case to Rayzaa.</h2>
             <p>
-              Baseline traffic stays visible for context, but only a true live payment unlocks Trust Replay and the analyst investigation workflow.
+              Baseline context stays visible, but only a true live payment unlocks Trust Replay and the analyst investigation workflow.
             </p>
           </div>
           <div className="payeasy-kpi-grid">
             <div className="payeasy-kpi-card">
               <span>Baseline context</span>
               <strong>{baselineSignals.length}</strong>
-              <p>{baselineSignals.length ? "Seeded signals are ready." : "Awaiting seed context."}</p>
+              <p>{baselineSignals.length ? "Seeded signals are ready." : "Awaiting baseline context."}</p>
             </div>
             <div className="payeasy-kpi-card">
               <span>Live payment proof</span>
@@ -235,12 +235,12 @@ export default function PayEasyDashboard() {
             <div className="payeasy-kpi-card">
               <span>Trust handoff</span>
               <strong>{trustShiftCase?.trustState || "Healthy"}</strong>
-              <p>{trustShiftCase ? `${compactNumber(trustShiftCase.fusedScore || 0)} fused into Rayzaa.` : "Awaiting operational handoff."}</p>
+              <p>{trustShiftCase ? `${compactNumber(trustShiftCase.fusedScore || 0)} fused into Rayzaa.` : "Awaiting live handoff."}</p>
             </div>
             <div className="payeasy-kpi-card">
               <span>Replay unlock</span>
               <strong>{demoFlow.livePaymentSeen ? "Ready" : "Locked"}</strong>
-              <p>{demoFlow.livePaymentSeen ? "Analyst replay is now available." : "Seed baseline first, then complete one live payment."}</p>
+              <p>{demoFlow.livePaymentSeen ? "Replay is now available." : "Seed baseline first, then complete one live payment."}</p>
             </div>
           </div>
         </section>
@@ -257,7 +257,7 @@ export default function PayEasyDashboard() {
             <div className="panel-header">
               <div>
                 <p className="eyebrow">Checkout Activity</p>
-                <h2>Customer-side proof trail</h2>
+                <h2>Checkout proof rail</h2>
               </div>
               <Link href="/rayzaa" className="ghost-button portal-link-button">
                 Open analyst view
@@ -299,8 +299,8 @@ export default function PayEasyDashboard() {
         <section className="panel payeasy-handoff-panel">
           <div className="payeasy-handoff-header">
             <div>
-              <p className="eyebrow">Operational Handoff</p>
-              <h2>Rayzaa receives the checkout, scores trust, and exposes the investigation path.</h2>
+              <p className="eyebrow">Operational handoff</p>
+              <h2>Rayzaa receives the checkout, scores trust, and opens the investigation path.</h2>
             </div>
             <div className="payeasy-handoff-actions">
               <Link href="/rayzaa" className="ghost-button portal-link-button">
@@ -327,7 +327,7 @@ export default function PayEasyDashboard() {
             <div className="payeasy-handoff-card">
               <span>Queue impact</span>
               <strong>{queue.length ? `${queue.length} active` : "Queue clear"}</strong>
-              <p>{queue.length ? "Live payment has entered analyst triage." : "No queue pressure from the current checkout session."}</p>
+              <p>{queue.length ? "The live payment has entered analyst triage." : "No queue pressure from the current checkout session."}</p>
             </div>
             <div className="payeasy-handoff-card">
               <span>Telegram status</span>
